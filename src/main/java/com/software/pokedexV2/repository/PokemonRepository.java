@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 //Qué entidad vas a manejar: Pokemon
 //Tipo de dato es el id de la entidad: Long
-//todo: AGREGAR @REPOSITORY
+@Repository
 public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
 
 }
