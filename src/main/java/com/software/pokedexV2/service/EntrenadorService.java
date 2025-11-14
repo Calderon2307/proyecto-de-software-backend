@@ -21,6 +21,6 @@ public interface EntrenadorService {
     EntrenadorResponse updateEntrenador(EntrenadorUpdateRequest entrenadorUpdateRequest);
 
     //DELETE
-    EntrenadorResponse deleteEntrenadorById(String id);
+    EntrenadorResponse deleteEntrenadorById(Long id);
     EntrenadorResponse deleteEntrenadorByEmail(String email);
 }

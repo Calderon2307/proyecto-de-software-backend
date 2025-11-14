@@ -3,6 +3,11 @@ package com.software.pokedexV2.service.impl;
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorRequest;
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorUpdateRequest;
 import com.software.pokedexV2.dto.response.Entrenador.EntrenadorResponse;
+import com.software.pokedexV2.dto.response.Pokemon.PokemonResponse;
+import com.software.pokedexV2.entities.Entrenador;
+import com.software.pokedexV2.exception.Entrenador.EntrenadorAlredyExistsException;
+import com.software.pokedexV2.exception.Entrenador.EntrenadorNotFoundException;
+import com.software.pokedexV2.mapper.EntrenadorMapper;
 import com.software.pokedexV2.repository.EntrenadorRepository;
 import com.software.pokedexV2.service.EntrenadorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,33 +39,49 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     @Override
     @Transactional
     public EntrenadorResponse createEntrenador(EntrenadorRequest entrenadorRequest) {
+        boolean exist = entrenadorRepository.existsByEmail(entrenadorRequest.getEmail());
+        if (exist) throw new EntrenadorAlredyExistsException("El email ya esta encontrado");
+
+        PokemonResponse pokemon = pokemonService.obtenerPorNombre()
         return null;
     }
 
     //READ
     @Override
     public EntrenadorResponse getByEmail(String email) {
-        return null;
+        return EntrenadorMapper.toDTO(
+                entrenadorRepository.findByEmail(email).orElseThrow(
+                        () -> new EntrenadorNotFoundException("Entrenador no encontrado")
+                )
+        );
     }
 
     @Override
     public List<EntrenadorResponse> getAll() {
-        return List.of();
+        return EntrenadorMapper.toDTOList(
+                entrenadorRepository.findAll()
+        );
     }
 
     @Override
     public List<EntrenadorResponse> getAllByRegionFav(String region) {
-        return List.of();
+        return EntrenadorMapper.toDTOList(
+                entrenadorRepository.findAllByRegionPreferida(region)
+        );
     }
 
     @Override
     public List<EntrenadorResponse> getAllByTipoFav(String tipo) {
-        return List.of();
+        return EntrenadorMapper.toDTOList(
+                entrenadorRepository.findAllByTipoPreferido(tipo)
+        );
     }
 
     @Override
     public List<EntrenadorResponse> getAllByPokemonFav(String pokemon) {
-        return List.of();
+        return EntrenadorMapper.toDTOList(
+                entrenadorRepository.findAllByPokemonPreferido_Nombre(pokemon)
+        );
     }
 
     //UPDATE
@@ -72,12 +93,24 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
     //DELETE
     @Override
-    public EntrenadorResponse deleteEntrenadorById(String id) {
-        return null;
+    public EntrenadorResponse deleteEntrenadorById(Long id) {
+        Entrenador entrenador = entrenadorRepository.findById(id).orElseThrow(
+                () -> new EntrenadorNotFoundException("Entrenador no encontrado")
+        );
+
+        entrenadorRepository.deleteById(id);
+
+        return EntrenadorMapper.toDTO(entrenador);
     }
 
     @Override
     public EntrenadorResponse deleteEntrenadorByEmail(String email) {
-        return null;
+        Entrenador entrenador = entrenadorRepository.findByEmail(email).orElseThrow(
+                () -> new EntrenadorNotFoundException("Entrenador no encontrado")
+        );
+
+        entrenadorRepository.deleteByEmail(email);
+
+        return EntrenadorMapper.toDTO(entrenador);
     }
 }
