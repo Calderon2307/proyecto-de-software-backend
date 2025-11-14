@@ -1,4 +1,4 @@
-package com.software.pokedexV2;
+package com.software.pokedexV2.service;
 
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorRequest;
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorUpdateRequest;
