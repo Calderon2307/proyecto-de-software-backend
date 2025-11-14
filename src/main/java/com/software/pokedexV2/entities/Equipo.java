@@ -28,6 +28,14 @@ public class Equipo {
 
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
+
+    @PrePersist
+    public void setFechaCreacion() {
+        if (this.fechaCreacion == null) {
+            this.fechaCreacion = LocalDateTime.now();
+        }
+    }
+
 //    @OneToMany(mappedBy = "equipo", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<PokemonEquipo> pokemonEquipo;
 }
