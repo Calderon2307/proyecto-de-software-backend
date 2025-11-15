@@ -42,8 +42,25 @@ public class EntrenadorServiceImpl implements EntrenadorService {
         boolean exist = entrenadorRepository.existsByEmail(entrenadorRequest.getEmail());
         if (exist) throw new EntrenadorAlredyExistsException("El email ya esta encontrado");
 
-        PokemonResponse pokemon = pokemonService.obtenerPorNombre()
-        return null;
+        PokemonResponse pokemon = pokemonService.obtenerPorNombre(entrenadorRequest.getNombrePokemonFavorito());
+
+        String passwordEncrypted = passwordEncoder.encode(entrenadorRequest.getContrasena());
+
+        EntrenadorRequest castEntrenador = EntrenadorRequest
+                .builder()
+                .nombre(entrenadorRequest.getNombre().toLowerCase().trim())
+                .email(entrenadorRequest.getEmail().toLowerCase().trim())
+                .contrasena(passwordEncrypted)
+                .regionPreferida(entrenadorRequest.getRegionPreferida().toLowerCase().trim())
+                .tipoPreferido(entrenadorRequest.getTipoPreferido().toLowerCase().trim())
+                .build();
+
+        return EntrenadorMapper.toDTO(
+                entrenadorRepository.save(EntrenadorMapper.toEntityCreate(
+                        castEntrenador,
+                        PokemonMapper.entidadDesdeDTO(pokemon)
+                ))
+        );
     }
 
     //READ
@@ -88,6 +105,18 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     @Override
     @Transactional
     public EntrenadorResponse updateEntrenador(EntrenadorUpdateRequest entrenadorUpdateRequest) {
+        Entrenador entrenador = entrenadorRepository.findById(entrenadorUpdateRequest.getId()).orElseThrow(
+                () -> new EntrenadorNotFoundException("Entrenador no encontrado")
+        );
+
+        EntrenadorUpdateRequest castEntrenador = EntrenadorUpdateRequest
+                .builder()
+                .id(entrenadorUpdateRequest.getId())
+                .nombre(entrenadorUpdateRequest.getNombre().toLowerCase().trim())
+                .regionPreferida(entrenadorUpdateRequest.getRegionPreferida().toLowerCase().trim())
+                .tipoPreferido(entrenadorUpdateRequest.getTipoPreferido().toLowerCase().trim())
+                .build();
+
         return null;
     }
 
