@@ -20,8 +20,7 @@ public class    Entrenador {
     @ManyToOne
     @JoinColumn(
             name = "id_pokemon_favorito",
-            columnDefinition = "idPokemon",
-            nullable = false
+            columnDefinition = "id_pokemon"
     )
     private Pokemon pokemonPreferido;
 
