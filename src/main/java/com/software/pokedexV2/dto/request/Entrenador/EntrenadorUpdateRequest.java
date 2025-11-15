@@ -14,7 +14,7 @@ public class EntrenadorUpdateRequest {
     private Long id;
 
     @JsonProperty(value = "pokemon_favorito")
-    private Long idPokemonFavorito;
+    private String nombrePokemonFavorito;
 
     @JsonProperty(value = "nombre")
     private String nombre;
