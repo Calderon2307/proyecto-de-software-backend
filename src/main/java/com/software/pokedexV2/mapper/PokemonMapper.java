@@ -1,6 +1,10 @@
 package com.software.pokedexV2.mapper;
+import com.software.pokedexV2.dto.request.Pokemon.PokemonUpdateRequest;
 import com.software.pokedexV2.dto.response.Pokemon.PokemonResponse;
 import com.software.pokedexV2.entities.Pokemon;
+import com.software.pokedexV2.dto.request.Pokemon.PokemonRequest;
+
+import java.util.List;
 
 public class PokemonMapper {
 
@@ -21,5 +25,70 @@ public class PokemonMapper {
                 .spriteShiny(response.getSpriteShiny())
                 .build();
     }
+
+    public static PokemonResponse toDTO(Pokemon pokemon) {
+        if (pokemon == null) {
+            return null;
+        }
+
+        return PokemonResponse.builder()
+                .id(pokemon.getIdPokemon())
+                .nombre(pokemon.getNombre())
+                .tipoPrincipal(pokemon.getTipoPrincipal())
+                .tipoSecundario(pokemon.getTipoSecundario())
+                .spriteNormal(pokemon.getSpriteNormal())
+                .spriteShiny(pokemon.getSpriteShiny())
+
+                .build();
+    }
+
+
+
+    public static List<PokemonResponse> toDTOList(List<Pokemon> pokemons) {
+        return pokemons.stream()
+                .map(PokemonMapper::toDTO)
+                .toList();
+    }
+
+    public static Pokemon toEntityCreate(PokemonRequest request) {
+
+       return Pokemon.builder()
+               .nombre(request.getNombre())
+               .tipoPrincipal(request.getTipoPrincipal())
+               .tipoSecundario(request.getTipoSecundario())
+               .spriteNormal(request.getSpriteNormal())
+               .spriteShiny(request.getSpriteShiny())
+
+            .build();
+
+    }
+
+
+    public static void toEntityUpdate(Pokemon pokemon, PokemonUpdateRequest updateReq) {
+        if (pokemon == null || updateReq == null) {
+            return;
+        }
+
+
+        if (updateReq.getTipoPrincipal() != null) {
+            pokemon.setTipoPrincipal(updateReq.getTipoPrincipal());
+        }
+
+        if (updateReq.getTipoSecundario() != null) {
+            pokemon.setTipoSecundario(updateReq.getTipoSecundario());
+        }
+
+        if (updateReq.getSpriteNormal() != null) {
+            pokemon.setSpriteNormal(updateReq.getSpriteNormal());
+        }
+
+        if (updateReq.getSpriteShiny() != null) {
+            pokemon.setSpriteShiny(updateReq.getSpriteShiny());
+        }
+    }
+
+
+
+
 
 }
