@@ -5,6 +5,7 @@ import com.software.pokedexV2.dto.request.Entrenador.EntrenadorUpdateRequest;
 import com.software.pokedexV2.dto.response.Entrenador.EntrenadorResponse;
 import com.software.pokedexV2.dto.response.Pokemon.PokemonResponse;
 import com.software.pokedexV2.entities.Entrenador;
+import com.software.pokedexV2.entities.Pokemon;
 import com.software.pokedexV2.exception.Entrenador.EntrenadorAlredyExistsException;
 import com.software.pokedexV2.exception.Entrenador.EntrenadorNotFoundException;
 import com.software.pokedexV2.mapper.EntrenadorMapper;
@@ -115,9 +116,23 @@ public class EntrenadorServiceImpl implements EntrenadorService {
                 .nombre(entrenadorUpdateRequest.getNombre().toLowerCase().trim())
                 .regionPreferida(entrenadorUpdateRequest.getRegionPreferida().toLowerCase().trim())
                 .tipoPreferido(entrenadorUpdateRequest.getTipoPreferido().toLowerCase().trim())
+                .nombrePokemonFavorito(entrenadorUpdateRequest.getNombrePokemonFavorito().toLowerCase().trim())
                 .build();
 
-        return null;
+        Pokemon pokemon = entrenadorUpdateRequest.getNombrePokemonFavorito().isBlank()
+                ? null
+                :
+                PokemonMapper.entidadDesdeDTO(pokemonService.obtenerPorNombre(entrenadorUpdateRequest.getNombrePokemonFavorito()));
+
+        EntrenadorMapper.toEntityUpdate(
+                entrenador,
+                entrenadorUpdateRequest,
+                pokemon
+        );
+
+        return EntrenadorMapper.toDTO(
+                entrenadorRepository.save(entrenador)
+        );
     }
 
     //DELETE
