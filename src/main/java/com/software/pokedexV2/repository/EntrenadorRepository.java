@@ -24,4 +24,6 @@ public interface EntrenadorRepository extends JpaRepository<Entrenador, Long> {
                     "OR " +
                     "e.pokemonPreferido.tipoSecundario = :tipo")
     List<Entrenador> findByPokemonPreferidoType(String tipo);
+
+    void deleteByEmail(String email);
 }

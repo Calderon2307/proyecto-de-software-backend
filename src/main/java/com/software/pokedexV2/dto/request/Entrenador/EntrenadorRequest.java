@@ -11,7 +11,7 @@ import lombok.*;
 public class EntrenadorRequest {
 
     @JsonProperty(value = "pokemon_favorito")
-    private Long idPokemonFavorito;
+    private String nombrePokemonFavorito;
 
     @JsonProperty(value = "nombre")
     @NotBlank(message = "El nombre no puede estar vacio.")

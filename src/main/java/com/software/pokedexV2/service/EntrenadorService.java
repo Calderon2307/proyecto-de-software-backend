@@ -1,4 +1,4 @@
-package com.software.pokedexV2;
+package com.software.pokedexV2.service;
 
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorRequest;
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorUpdateRequest;
@@ -21,6 +21,6 @@ public interface EntrenadorService {
     EntrenadorResponse updateEntrenador(EntrenadorUpdateRequest entrenadorUpdateRequest);
 
     //DELETE
-    EntrenadorResponse deleteEntrenadorById(String id);
+    EntrenadorResponse deleteEntrenadorById(Long id);
     EntrenadorResponse deleteEntrenadorByEmail(String email);
 }
