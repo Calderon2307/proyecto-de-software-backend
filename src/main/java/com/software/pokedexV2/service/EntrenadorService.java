@@ -3,6 +3,8 @@ package com.software.pokedexV2.service;
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorRequest;
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorUpdateRequest;
 import com.software.pokedexV2.dto.response.Entrenador.EntrenadorResponse;
+import com.software.pokedexV2.entities.Entrenador;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 

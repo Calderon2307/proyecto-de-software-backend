@@ -1,19 +1,25 @@
 package com.software.pokedexV2.service;
 
 import com.software.pokedexV2.dto.request.Equipo.EquipoRequest;
+import com.software.pokedexV2.dto.request.Equipo.EquipoUpdateRequest;
 import com.software.pokedexV2.dto.response.Equipo.EquipoResponse;
 
 import java.util.List;
 
 public interface EquipoService {
 
-    EquipoResponse crearEquipo(EquipoRequest equipoRequest);
+    // CREATE
+    EquipoResponse createTeam(EquipoRequest request);
 
-    EquipoResponse obtenerEquipo(Long id);
+    // READ
+    EquipoResponse getTeamById(Long id); // Keep for testing
+    List<EquipoResponse> getTeamsByTrainerId(Long trainerId);
+    EquipoResponse getTeamByTrainerIdAndName(Long trainerId, String teamName);
 
-    List<EquipoResponse> obtenerEquiposPorEntrenador(Long idEntrenador);
 
-    EquipoResponse actualizarEquipo(Long id, EquipoRequest equipoRequest);
+    // UPDATE
+    EquipoResponse updateTeam(EquipoUpdateRequest request);
 
-    boolean eliminarEquipo(Long id);
+    // DELETE
+    boolean deleteTeam(Long id);
 }

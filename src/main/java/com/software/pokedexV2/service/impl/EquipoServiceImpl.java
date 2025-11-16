@@ -1,6 +1,7 @@
 package com.software.pokedexV2.service.impl;
 
 import com.software.pokedexV2.dto.request.Equipo.EquipoRequest;
+import com.software.pokedexV2.dto.request.Equipo.EquipoUpdateRequest;
 import com.software.pokedexV2.dto.response.Equipo.EquipoResponse;
 import com.software.pokedexV2.entities.Equipo;
 import com.software.pokedexV2.entities.Entrenador;
@@ -29,48 +30,67 @@ public class EquipoServiceImpl implements EquipoService {
     // CREATE
     @Override
     @Transactional
-    public EquipoResponse crearEquipo(EquipoRequest equipoRequest) {
-        Entrenador entrenador = entrenadorService.obtenerEntrenador(equipoRequest.getIdEntrenador());
-        Equipo equipo = EquipoMapper.toEntityCreate(equipoRequest, entrenador);
-        equipoRepository.save(equipo);
-        return EquipoMapper.toDTO(equipo);
+    public EquipoResponse createTeam(EquipoRequest request) {
+
+        Entrenador trainer = entrenadorService.getById(request.getIdEntrenador());
+
+        boolean exists = equipoRepository.existsByNombreEquipoAndEntrenador_Id(
+                request.getNombreEquipo(),
+                request.getIdEntrenador()
+        );
+
+        if (exists) {
+            throw new RuntimeException("El entrenador ya tiene un equipo con ese nombre.");
+        }
+
+        Equipo team = EquipoMapper.toEntityCreate(request, trainer);
+        equipoRepository.save(team);
+
+        return EquipoMapper.toDTO(team);
     }
 
     // READ
     @Override
-    public EquipoResponse obtenerEquipo(Long id) {
-        Equipo equipo = equipoRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Equipo no encontrado")
-        );
-        return EquipoMapper.toDTO(equipo);
+    public EquipoResponse getTeamById(Long id) {
+        Equipo team = equipoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Equipo no encontrado."));
+        return EquipoMapper.toDTO(team);
     }
 
     @Override
-    public List<EquipoResponse> obtenerEquiposPorEntrenador(Long idEntrenador) {
-        List<Equipo> equipos = equipoRepository.findByEntrenador_Id(idEntrenador);
-        return EquipoMapper.toDTOList(equipos);
+    public List<EquipoResponse> getTeamsByTrainerId(Long trainerId) {
+        return EquipoMapper.toDTOList(
+                equipoRepository.findByEntrenador_Id(trainerId)
+        );
+    }
+
+    @Override
+    public EquipoResponse getTeamByTrainerIdAndName(Long trainerId, String name) {
+        Equipo team = equipoRepository
+                .findByEntrenador_IdAndNombreEquipo(trainerId, name)
+                .orElseThrow(() -> new RuntimeException("Equipo no encontrado."));
+        return EquipoMapper.toDTO(team);
     }
 
     // UPDATE
     @Override
     @Transactional
-    public EquipoResponse actualizarEquipo(Long id, EquipoRequest equipoRequest) {
-        Equipo equipo = equipoRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Equipo no encontrado")
-        );
-        Entrenador entrenador = entrenadorService.obtenerEntrenador(equipoRequest.getIdEntrenador());
-        EquipoMapper.toEntityUpdate(equipo, equipoRequest, entrenador);
-        equipoRepository.save(equipo);
-        return EquipoMapper.toDTO(equipo);
+    public EquipoResponse updateTeam(EquipoUpdateRequest request) {
+
+        Equipo team = equipoRepository.findById(request.getIdEquipo())
+                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+
+        EquipoMapper.toEntityUpdate(team, request, team.getEntrenador());
+
+        equipoRepository.save(team);
+        return EquipoMapper.toDTO(team);
     }
 
     // DELETE
     @Override
-    public boolean eliminarEquipo(Long id) {
-        if (equipoRepository.existsById(id)) {
-            equipoRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    public boolean deleteTeam(Long id) {
+        if (!equipoRepository.existsById(id)) return false;
+        equipoRepository.deleteById(id);
+        return true;
     }
 }
