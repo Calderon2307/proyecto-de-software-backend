@@ -18,6 +18,8 @@ import com.software.pokedexV2.service.PokemonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.software.pokedexV2.dto.response.PokemonEquipo.PokemonEquipoDetalleResponse;
+
 
 import java.util.List;
 
@@ -46,15 +48,12 @@ public class PokemonEquipoServiceImpl implements PokemonEquipoService {
 
         EquipoResponse equipoResponse = equipoService.getTeamById(request.getIdEquipo());
 
-        // 2. Obtener el Pokémon desde el SERVICE
-        // Ajusta el nombre del método según tu PokemonService
+
         PokemonResponse pokemonResponse = pokemonService.obtenerPorNombre(request.getNombrePokemon());
 
-        // 3. Convertir DTOs a entidades usando sus mappers 
         Equipo equipo = EquipoMapper.toEntity(equipoResponse);
         Pokemon pokemon = PokemonMapper.toEntity(pokemonResponse);
 
-        // 4. (Opcional) Validar que no exista ya un Pokémon en esa posición del equipo
         pokemonEquipoRepository.findByEquipo_IdEquipoAndPosicion(
                         equipo.getIdEquipo(),
                         request.getPosicion()
@@ -65,33 +64,44 @@ public class PokemonEquipoServiceImpl implements PokemonEquipoService {
                     );
                 });
 
-        // 5. Mapear request -> entidad
+
         PokemonEquipo entity = PokemonEquipoMapper.toEntityCreate(
                 request,
                 equipo,
                 pokemon
         );
 
-        // 6. Guardar
         PokemonEquipo saved = pokemonEquipoRepository.save(entity);
 
-        // 7. Entidad -> DTO
         return PokemonEquipoMapper.toDTO(saved);
     }
 
-    // READ by ID
-    @Override
-    @Transactional(readOnly = true)
-    public PokemonEquipoResponse getById(Long id) {
-        PokemonEquipo entity = pokemonEquipoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
-                        "Registro pokemon_equipo no encontrado con id: " + id
-                ));
+// READ by ID
+@Override
+@Transactional(readOnly = true)
+public PokemonEquipoDetalleResponse getById(Long idEquipo) {
 
-        return PokemonEquipoMapper.toDTO(entity);
+
+    EquipoResponse equipoResponse = equipoService.getTeamById(idEquipo);
+    if (equipoResponse == null) {
+        throw new RuntimeException("Equipo no encontrado con id: " + idEquipo);
     }
 
-    // READ – todos los Pokémon de un equipo
+    List<PokemonEquipo> lista = pokemonEquipoRepository.findByEquipo_IdEquipo(idEquipo);
+
+
+    List<PokemonEquipoResponse> pokemones = PokemonEquipoMapper.toDTOList(lista);
+
+
+    return PokemonEquipoDetalleResponse.builder()
+            .idEquipo(equipoResponse.getIdEquipo())
+            .nombreEquipo(equipoResponse.getNombreEquipo())
+            .pokemones(pokemones)
+            .build();
+}
+
+
+
     @Override
     @Transactional(readOnly = true)
     public List<PokemonEquipoResponse> getByTeamId(Long idEquipo) {
@@ -104,43 +114,59 @@ public class PokemonEquipoServiceImpl implements PokemonEquipoService {
     @Transactional
     public PokemonEquipoResponse updatePokemonInTeam(PokemonEquipoUpdateRequest request) {
 
-        // 1. Buscar la entidad a actualizar
+    
         PokemonEquipo entity = pokemonEquipoRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException(
                         "Registro pokemon_equipo no encontrado con id: " + request.getId()
                 ));
 
-        // 2. Si viene un nuevo nombre_pokemon, lo obtenemos desde el SERVICE
+   
         Pokemon nuevoPokemon = null;
         if (request.getNombrePokemon() != null) {
             PokemonResponse pokemonResponse = pokemonService.obtenerPorNombre(request.getNombrePokemon());
             nuevoPokemon = PokemonMapper.toEntity(pokemonResponse);
         }
 
-        // 3. Mapear campos del update request a la entidad existente
+      
         PokemonEquipoMapper.toEntityUpdate(
                 entity,
                 request,
                 nuevoPokemon
         );
 
-        // 4. Guardar cambios
+
         PokemonEquipo updated = pokemonEquipoRepository.save(entity);
 
-        // 5. Entidad -> DTO
         return PokemonEquipoMapper.toDTO(updated);
     }
 
     // DELETE
-    @Override
-    @Transactional
-    public boolean removeFromTeam(Long id) {
+@Override
+@Transactional
+public boolean removeFromTeam(Long idEquipo, String nombrePokemon, Integer posicion) {
 
-        if (!pokemonEquipoRepository.existsById(id)) {
-            return false;
-        }
-
-        pokemonEquipoRepository.deleteById(id);
-        return true;
+    EquipoResponse equipoResponse = equipoService.getTeamById(idEquipo);
+    if (equipoResponse == null) {
+        return false; 
     }
+
+    PokemonEquipo entity = pokemonEquipoRepository
+            .findByEquipo_IdEquipoAndPosicion(idEquipo, posicion)
+            .orElse(null);
+
+    if (entity == null) {
+        return false;
+    }
+
+    if (entity.getPokemon() == null
+            || entity.getPokemon().getNombre() == null
+            || !entity.getPokemon().getNombre().equalsIgnoreCase(nombrePokemon)) {
+
+        return false;
+    }
+
+    pokemonEquipoRepository.delete(entity);
+    return true;
+}
+
 }
