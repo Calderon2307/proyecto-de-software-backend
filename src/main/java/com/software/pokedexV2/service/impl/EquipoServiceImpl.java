@@ -5,6 +5,7 @@ import com.software.pokedexV2.dto.request.Equipo.EquipoUpdateRequest;
 import com.software.pokedexV2.dto.response.Equipo.EquipoResponse;
 import com.software.pokedexV2.entities.Equipo;
 import com.software.pokedexV2.entities.Entrenador;
+import com.software.pokedexV2.mapper.EntrenadorMapper;
 import com.software.pokedexV2.mapper.EquipoMapper;
 import com.software.pokedexV2.repository.EquipoRepository;
 import com.software.pokedexV2.service.EquipoService;
@@ -32,7 +33,9 @@ public class EquipoServiceImpl implements EquipoService {
     @Transactional
     public EquipoResponse createTeam(EquipoRequest request) {
 
-        Entrenador trainer = entrenadorService.getById(request.getIdEntrenador());
+        var trainerResponse = entrenadorService.getById(request.getIdEntrenador());
+
+        Entrenador trainer = EntrenadorMapper.responseToEntity(trainerResponse);
 
         boolean exists = equipoRepository.existsByNombreEquipoAndEntrenador_Id(
                 request.getNombreEquipo(),

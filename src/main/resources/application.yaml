@@ -3,9 +3,9 @@ spring:
     name: pokedex-backend
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/pokedex-backend
+    url: jdbc:postgresql://localhost:5432/pokedex
     username: postgres
-    password: admin
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   jpa:
