@@ -1,5 +1,4 @@
 package com.software.pokedexV2.controller;
-
 import com.software.pokedexV2.dto.request.PokemonEquipo.PokemonEquipoRequest;
 import com.software.pokedexV2.dto.request.PokemonEquipo.PokemonEquipoUpdateRequest;
 import com.software.pokedexV2.dto.response.GeneralResponse;
@@ -45,7 +44,6 @@ public class PokemonEquipoController {
         );
     }
 
-    // READ – obtener todos los Pokémon de un equipo
     @GetMapping("/equipo/{idEquipo}")
     public ResponseEntity<GeneralResponse> getByTeamId(@PathVariable Long idEquipo) {
         return ResponseBuilder.buildResponse(
@@ -67,15 +65,22 @@ public class PokemonEquipoController {
         );
     }
 
-    // DELETE – eliminar un Pokémon del equipo
-    @DeleteMapping("/{id}")
-    public ResponseEntity<GeneralResponse> deleteFromTeam(@PathVariable Long id) {
-        boolean deleted = pokemonEquipoService.removeFromTeam(id);
+    // DELETE – eliminar un Pokémon del equipon
+@DeleteMapping("/equipo/{idEquipo}")
+public ResponseEntity<GeneralResponse> deleteFromTeam(
+        @PathVariable Long idEquipo,
+        @RequestParam("nombre_pokemon") String nombrePokemon,
+        @RequestParam("posicion") Integer posicion
+) {
+    boolean deleted = pokemonEquipoService.removeFromTeam(idEquipo, nombrePokemon, posicion);
 
-        return ResponseBuilder.buildResponse(
-                deleted ? "Pokémon eliminado del equipo" : "Registro pokemon_equipo no encontrado",
-                deleted ? HttpStatus.OK : HttpStatus.NOT_FOUND,
-                deleted
-        );
-    }
+    return ResponseBuilder.buildResponse(
+            deleted
+                    ? "Pokémon eliminado del equipo"
+                    : "No se encontró un Pokémon que coincida con el equipo, nombre y posición especificados",
+            deleted ? HttpStatus.OK : HttpStatus.NOT_FOUND,
+            deleted
+    );
+}
+
 }
