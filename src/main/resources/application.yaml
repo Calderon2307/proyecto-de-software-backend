@@ -1,3 +1,20 @@
 spring:
   application:
     name: pokedex-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/pokedex-backend
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
