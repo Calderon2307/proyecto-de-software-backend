@@ -34,14 +34,12 @@ public class EquipoServiceImpl implements EquipoService {
     public EquipoResponse createTeam(EquipoRequest request) {
 
         var trainerResponse = entrenadorService.getById(request.getIdEntrenador());
-
         Entrenador trainer = EntrenadorMapper.responseToEntity(trainerResponse);
 
         boolean exists = equipoRepository.existsByNombreEquipoAndEntrenador_Id(
                 request.getNombreEquipo(),
                 request.getIdEntrenador()
         );
-
         if (exists) {
             throw new RuntimeException("El entrenador ya tiene un equipo con ese nombre.");
         }
@@ -68,9 +66,9 @@ public class EquipoServiceImpl implements EquipoService {
     }
 
     @Override
-    public EquipoResponse getTeamByTrainerIdAndName(Long trainerId, String name) {
+    public EquipoResponse getTeamByTrainerIdAndName(Long trainerId, String teamName) {
         Equipo team = equipoRepository
-                .findByEntrenador_IdAndNombreEquipo(trainerId, name)
+                .findByEntrenador_IdAndNombreEquipo(trainerId, teamName)
                 .orElseThrow(() -> new RuntimeException("Equipo no encontrado."));
         return EquipoMapper.toDTO(team);
     }
@@ -83,17 +81,22 @@ public class EquipoServiceImpl implements EquipoService {
         Equipo team = equipoRepository.findById(request.getIdEquipo())
                 .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
 
-        EquipoMapper.toEntityUpdate(team, request, team.getEntrenador());
+        EquipoMapper.toEntityUpdate(team, request);
 
         equipoRepository.save(team);
+
         return EquipoMapper.toDTO(team);
     }
 
     // DELETE
     @Override
-    public boolean deleteTeam(Long id) {
-        if (!equipoRepository.existsById(id)) return false;
-        equipoRepository.deleteById(id);
-        return true;
+    public EquipoResponse deleteTeam(Long id) {
+
+        Equipo team = equipoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Equipo no encontrado."));
+
+        equipoRepository.delete(team);
+
+        return EquipoMapper.toDTO(team);
     }
 }
