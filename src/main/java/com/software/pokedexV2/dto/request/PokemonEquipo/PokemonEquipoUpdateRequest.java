@@ -16,6 +16,6 @@ public class PokemonEquipoUpdateRequest {
     @JsonProperty("posicion")
     private Integer posicion;
 
-    @JsonProperty("id_pokemon")
-    private Long idPokemon;
+    @JsonProperty("nombre_pokemon")
+    private String nombrePokemon;
 }

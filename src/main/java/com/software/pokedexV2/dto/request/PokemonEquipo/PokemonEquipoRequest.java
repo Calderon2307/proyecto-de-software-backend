@@ -15,9 +15,9 @@ public class PokemonEquipoRequest {
     @NotNull(message = "El id del equipo es obligatorio.")
     private Long idEquipo;
 
-    @JsonProperty("id_pokemon")
-    @NotNull(message = "El id del pokemon es obligatorio.")
-    private Long idPokemon;
+    @JsonProperty("nombre_pokemon")
+    @NotNull(message = "El nombre del pokemon es obligatorio.")
+    private String nombrePokemon;
 
     @JsonProperty("posicion")
     @NotNull(message = "La posición es obligatoria.")
