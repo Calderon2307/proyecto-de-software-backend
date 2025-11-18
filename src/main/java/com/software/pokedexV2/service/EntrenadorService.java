@@ -11,6 +11,7 @@ public interface EntrenadorService {
     EntrenadorResponse createEntrenador(EntrenadorRequest entrenadorRequest);
 
     //READ
+    EntrenadorResponse getById(Long id);
     EntrenadorResponse getByEmail(String email);
     List<EntrenadorResponse> getAll();
     List<EntrenadorResponse> getAllByRegionFav(String region);

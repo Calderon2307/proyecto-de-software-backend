@@ -71,6 +71,15 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
     //READ
     @Override
+    public EntrenadorResponse getById(Long id) {
+        return EntrenadorMapper.toDTO(
+                entrenadorRepository.findById(id).orElseThrow(
+                        () -> new EntrenadorNotFoundException("Entrenador no encontrado")
+                )
+        );
+    }
+
+    @Override
     public EntrenadorResponse getByEmail(String email) {
         return EntrenadorMapper.toDTO(
                 entrenadorRepository.findByEmail(email).orElseThrow(
