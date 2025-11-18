@@ -21,18 +21,44 @@ public class PokemonServiceImpl implements PokemonService {
     // CREATE
     @Override
     public PokemonResponse createPokemon(PokemonRequest pokemonRequest) {
-        Pokemon pokemon = PokemonMapper.toEntityCreate(pokemonRequest);
+
+        String nombre = normalize(pokemonRequest.getNombre());
+        String tipoPrincipal = normalize(pokemonRequest.getTipoPrincipal());
+        String tipoSecundario = normalize(pokemonRequest.getTipoSecundario());
+
+        boolean existe = pokemonRepository.existsByNombre(nombre);
+        if (existe) {
+            throw new RuntimeException("El pokemon ya existe");
+        }
+
+        PokemonRequest requestNormalizado = PokemonRequest.builder()
+                .nombre(nombre)
+                .tipoPrincipal(tipoPrincipal)
+                .tipoSecundario(tipoSecundario)
+                .spriteNormal(pokemonRequest.getSpriteNormal())
+                .spriteShiny(pokemonRequest.getSpriteShiny())
+                .build();
+
+        Pokemon pokemon = PokemonMapper.toEntityCreate(requestNormalizado);
         Pokemon guardado = pokemonRepository.save(pokemon);
+
         return PokemonMapper.toDTO(guardado);
     }
+
+
 
     // READ
     @Override
     public PokemonResponse obtenerPorNombre(String nombre) {
-        Pokemon pokemon = pokemonRepository.findByNombre(nombre)
+
+        String nombreNormalizado = normalize(nombre);
+
+        Pokemon pokemon = pokemonRepository.findByNombre(nombreNormalizado)
                 .orElseThrow(() -> new RuntimeException("Pokemon no encontrado"));
+
         return PokemonMapper.toDTO(pokemon);
     }
+
 
     @Override
     public List<PokemonResponse> getAll() {
@@ -77,11 +103,16 @@ public class PokemonServiceImpl implements PokemonService {
 
     @Override
     public PokemonResponse deletePokemonByNombre(String nombre) {
-        Pokemon pokemon = pokemonRepository.findByNombre(nombre)
+        String nombreNormalizado = normalize(nombre);
+        Pokemon pokemon = pokemonRepository.findByNombre(nombreNormalizado)
                 .orElseThrow(() -> new RuntimeException("Pokemon no encontrado"));
-
-        pokemonRepository.deleteByNombre(nombre);
-
+        pokemonRepository.delete(pokemon);
         return PokemonMapper.toDTO(pokemon);
     }
+
+
+    private String normalize(String value) {
+        return value == null ? null : value.toLowerCase().trim();
+    }
+
 }

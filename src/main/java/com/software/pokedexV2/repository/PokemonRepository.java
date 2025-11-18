@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
 
+    boolean existsByNombre(String nombre);
     Optional<Pokemon> findByNombre(String nombre);
     List<Pokemon> findAllByTipoPrincipal(String tipoPrincipal);
 

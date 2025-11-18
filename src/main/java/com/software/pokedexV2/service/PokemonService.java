@@ -23,4 +23,5 @@ public interface PokemonService {
     // DELETE
     PokemonResponse deletePokemonById(Long id);
     PokemonResponse deletePokemonByNombre(String nombre);
+
 }
