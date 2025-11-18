@@ -13,6 +13,17 @@ public class EquipoMapper {
 
     private EquipoMapper() {}
 
+
+    public static Equipo toEntity(EquipoResponse response) {
+        if (response == null) return null;
+
+        return Equipo.builder()
+                .idEquipo(response.getIdEquipo())
+                .nombreEquipo(response.getNombreEquipo())
+                .build();
+    }
+
+
     // CREATE
     public static Equipo toEntityCreate(EquipoRequest request, Entrenador entrenador) {
         return Equipo.builder()
