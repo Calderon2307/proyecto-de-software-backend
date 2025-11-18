@@ -38,7 +38,7 @@ public class EntrenadorMapper {
         if(updateReq.getTipoPreferido() != null) entrenador.setTipoPreferido(updateReq.getTipoPreferido());
     }
 
-    public static Entrenador resonseToEntity(EntrenadorResponse resonse) {
+    public static Entrenador responseToEntity(EntrenadorResponse resonse) {
         return Entrenador.builder()
                 .id(resonse.getId())
                 .nombre(resonse.getNombre())
