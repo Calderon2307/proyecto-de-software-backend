@@ -9,8 +9,10 @@ import com.software.pokedexV2.entities.Pokemon;
 import com.software.pokedexV2.exception.Entrenador.EntrenadorAlredyExistsException;
 import com.software.pokedexV2.exception.Entrenador.EntrenadorNotFoundException;
 import com.software.pokedexV2.mapper.EntrenadorMapper;
+import com.software.pokedexV2.mapper.PokemonMapper;
 import com.software.pokedexV2.repository.EntrenadorRepository;
 import com.software.pokedexV2.service.EntrenadorService;
+import com.software.pokedexV2.service.PokemonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,17 +24,17 @@ import java.util.List;
 public class EntrenadorServiceImpl implements EntrenadorService {
 
     private final EntrenadorRepository entrenadorRepository;
-    //private final PokemonService pokemonService;
+    private final PokemonService pokemonService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public EntrenadorServiceImpl(
             EntrenadorRepository entrenadorRepository,
-            //PokemonService pokemonService,
+            PokemonService pokemonService,
             PasswordEncoder passwordEncoder
     ){
         this.entrenadorRepository = entrenadorRepository;
-        //this.pokemonService = pokemonService;
+        this.pokemonService = pokemonService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -43,7 +45,9 @@ public class EntrenadorServiceImpl implements EntrenadorService {
         boolean exist = entrenadorRepository.existsByEmail(entrenadorRequest.getEmail());
         if (exist) throw new EntrenadorAlredyExistsException("El email ya esta encontrado");
 
-        PokemonResponse pokemon = pokemonService.obtenerPorNombre(entrenadorRequest.getNombrePokemonFavorito());
+        PokemonResponse pokemon = pokemonService.obtenerPorNombre(
+                entrenadorRequest.getNombrePokemonFavorito()
+        );
 
         String passwordEncrypted = passwordEncoder.encode(entrenadorRequest.getContrasena());
 
@@ -59,7 +63,8 @@ public class EntrenadorServiceImpl implements EntrenadorService {
         return EntrenadorMapper.toDTO(
                 entrenadorRepository.save(EntrenadorMapper.toEntityCreate(
                         castEntrenador,
-                        PokemonMapper.entidadDesdeDTO(pokemon)
+                        PokemonMapper.toEntity(pokemon)
+
                 ))
         );
     }
@@ -121,8 +126,11 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
         Pokemon pokemon = entrenadorUpdateRequest.getNombrePokemonFavorito().isBlank()
                 ? null
-                :
-                PokemonMapper.entidadDesdeDTO(pokemonService.obtenerPorNombre(entrenadorUpdateRequest.getNombrePokemonFavorito()));
+                : PokemonMapper.toEntity(
+                pokemonService.obtenerPorNombre(
+                        entrenadorUpdateRequest.getNombrePokemonFavorito()
+                )
+        );
 
         EntrenadorMapper.toEntityUpdate(
                 entrenador,
