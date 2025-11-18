@@ -13,12 +13,13 @@ public class Equipo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_equipo")
     private Long idEquipo;
 
     @ManyToOne
     @JoinColumn(
             name = "id_entrenador",
-            referencedColumnName = "id_entrenador",
+            referencedColumnName = "id",
             nullable = false
     )
     private Entrenador entrenador;
