@@ -43,21 +43,25 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     @Transactional
     public EntrenadorResponse createEntrenador(EntrenadorRequest entrenadorRequest) {
         boolean exist = entrenadorRepository.existsByEmail(entrenadorRequest.getEmail());
-        if (exist) throw new EntrenadorAlredyExistsException("El email ya esta encontrado");
+        if (exist) throw new EntrenadorAlredyExistsException("El email ya esta registrado");
 
-        PokemonResponse pokemon = pokemonService.obtenerPorNombre(
-                entrenadorRequest.getNombrePokemonFavorito()
-        );
+        PokemonResponse pokemon = null;
+
+        if(entrenadorRequest.getNombrePokemonFavorito() != null){
+            pokemon = pokemonService.obtenerPorNombre(
+                    entrenadorRequest.getNombrePokemonFavorito()
+            );
+        }
 
         String passwordEncrypted = passwordEncoder.encode(entrenadorRequest.getContrasena());
 
         EntrenadorRequest castEntrenador = EntrenadorRequest
                 .builder()
-                .nombre(entrenadorRequest.getNombre().toLowerCase().trim())
+                .nombre(entrenadorRequest.getNombre() != null ? entrenadorRequest.getNombre().toLowerCase().trim() : null)
                 .email(entrenadorRequest.getEmail().toLowerCase().trim())
                 .contrasena(passwordEncrypted)
-                .regionPreferida(entrenadorRequest.getRegionPreferida().toLowerCase().trim())
-                .tipoPreferido(entrenadorRequest.getTipoPreferido().toLowerCase().trim())
+                .regionPreferida(entrenadorRequest.getRegionPreferida() != null ? entrenadorRequest.getRegionPreferida().toLowerCase().trim() : null)
+                .tipoPreferido(entrenadorRequest.getTipoPreferido() != null ? entrenadorRequest.getTipoPreferido().toLowerCase().trim() : null)
                 .build();
 
         return EntrenadorMapper.toDTO(
@@ -127,23 +131,21 @@ public class EntrenadorServiceImpl implements EntrenadorService {
         EntrenadorUpdateRequest castEntrenador = EntrenadorUpdateRequest
                 .builder()
                 .id(entrenadorUpdateRequest.getId())
-                .nombre(entrenadorUpdateRequest.getNombre().toLowerCase().trim())
-                .regionPreferida(entrenadorUpdateRequest.getRegionPreferida().toLowerCase().trim())
-                .tipoPreferido(entrenadorUpdateRequest.getTipoPreferido().toLowerCase().trim())
-                .nombrePokemonFavorito(entrenadorUpdateRequest.getNombrePokemonFavorito().toLowerCase().trim())
+                .nombre(entrenadorUpdateRequest.getNombre() != null ? entrenadorUpdateRequest.getNombre().toLowerCase().trim() : null)
+                .regionPreferida(entrenadorUpdateRequest.getRegionPreferida() != null ? entrenadorUpdateRequest.getRegionPreferida().toLowerCase().trim() : null)
+                .tipoPreferido(entrenadorUpdateRequest.getTipoPreferido() != null ? entrenadorUpdateRequest.getTipoPreferido().toLowerCase().trim() : null)
+                .nombrePokemonFavorito(entrenadorUpdateRequest.getNombrePokemonFavorito() != null ? entrenadorUpdateRequest.getNombrePokemonFavorito().toLowerCase().trim() : null)
                 .build();
 
-        Pokemon pokemon = entrenadorUpdateRequest.getNombrePokemonFavorito().isBlank()
-                ? null
-                : PokemonMapper.toEntity(
-                pokemonService.obtenerPorNombre(
-                        entrenadorUpdateRequest.getNombrePokemonFavorito()
+        Pokemon pokemon = entrenadorUpdateRequest.getNombrePokemonFavorito() != null ?
+                PokemonMapper.toEntity(
+                        pokemonService.obtenerPorNombre(entrenadorUpdateRequest.getNombrePokemonFavorito())
                 )
-        );
+                : null;
 
         EntrenadorMapper.toEntityUpdate(
                 entrenador,
-                entrenadorUpdateRequest,
+                castEntrenador,
                 pokemon
         );
 
@@ -165,6 +167,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     }
 
     @Override
+    @Transactional
     public EntrenadorResponse deleteEntrenadorByEmail(String email) {
         Entrenador entrenador = entrenadorRepository.findByEmail(email).orElseThrow(
                 () -> new EntrenadorNotFoundException("Entrenador no encontrado")

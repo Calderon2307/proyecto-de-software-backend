@@ -47,7 +47,7 @@ public class EntrenadorMapper {
     }
 
     public static EntrenadorResponse toDTO(
-        Entrenador entrenador
+            Entrenador entrenador
     ){
         return EntrenadorResponse.builder()
                 .id(entrenador.getId())
@@ -56,15 +56,16 @@ public class EntrenadorMapper {
                 .tipoPreferido(entrenador.getTipoPreferido())
                 .regionPreferida(entrenador.getRegionPreferida())
                 .pokemonPreferido(
-                        PokemonResponse
-                                .builder()
-                                .id(entrenador.getPokemonPreferido().getIdPokemon())
-                                .nombre(entrenador.getPokemonPreferido().getNombre())
-                                .tipoPrincipal(entrenador.getPokemonPreferido().getTipoPrincipal())
-                                .tipoSecundario(entrenador.getPokemonPreferido().getTipoSecundario())
-                                .spriteNormal(entrenador.getPokemonPreferido().getSpriteNormal())
-                                .spriteShiny(entrenador.getPokemonPreferido().getSpriteShiny())
-                                .build()
+                        entrenador.getPokemonPreferido() != null ?
+                                PokemonResponse
+                                        .builder()
+                                        .id(entrenador.getPokemonPreferido().getIdPokemon())
+                                        .nombre(entrenador.getPokemonPreferido().getNombre())
+                                        .tipoPrincipal(entrenador.getPokemonPreferido().getTipoPrincipal())
+                                        .tipoSecundario(entrenador.getPokemonPreferido().getTipoSecundario())
+                                        .spriteNormal(entrenador.getPokemonPreferido().getSpriteNormal())
+                                        .spriteShiny(entrenador.getPokemonPreferido().getSpriteShiny())
+                                        .build() : null
                 )
                 .build();
     }
