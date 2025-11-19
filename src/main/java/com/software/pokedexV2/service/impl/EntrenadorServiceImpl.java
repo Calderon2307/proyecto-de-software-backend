@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -45,16 +46,29 @@ public class EntrenadorServiceImpl implements EntrenadorService {
         boolean exist = entrenadorRepository.existsByEmail(entrenadorRequest.getEmail());
         if (exist) throw new EntrenadorAlredyExistsException("El email ya esta registrado");
 
-        PokemonResponse pokemon = null;
+        String nombrePokemon = entrenadorRequest.getNombrePokemonFavorito();
+        Pokemon pokemonEntity = null;
 
-        if(entrenadorRequest.getNombrePokemonFavorito() != null){
-            pokemon = pokemonService.obtenerPorNombre(
-                    entrenadorRequest.getNombrePokemonFavorito()
-            );
+        // 1. Validar y buscar el Pokémon solo si se proporciona el nombre.
+        // Usamos StringUtils.hasText() para verificar que no sea null ni vacío/espacios.
+        if (StringUtils.hasText(nombrePokemon)) {
+            try {
+                // Normalizar la cadena antes de la búsqueda
+                PokemonResponse pokemonResponse = pokemonService.obtenerPorNombre(
+                        nombrePokemon.toLowerCase().trim()
+                );
+                pokemonEntity = PokemonMapper.toEntity(pokemonResponse);
+            } catch (RuntimeException e) {
+                // Si el Pokémon no se encuentra, manejamos la excepción internamente
+                // y podemos elegir lanzar una excepción más clara o dejar pokemonEntity como null.
+                throw new EntrenadorNotFoundException("El Pokémon favorito especificado no fue encontrado.");
+            }
         }
+
 
         String passwordEncrypted = passwordEncoder.encode(entrenadorRequest.getContrasena());
 
+        // El DTO de request solo se usa aquí para transferir datos al mapper y a la entidad
         EntrenadorRequest castEntrenador = EntrenadorRequest
                 .builder()
                 .nombre(entrenadorRequest.getNombre() != null ? entrenadorRequest.getNombre().toLowerCase().trim() : null)
@@ -67,8 +81,8 @@ public class EntrenadorServiceImpl implements EntrenadorService {
         return EntrenadorMapper.toDTO(
                 entrenadorRepository.save(EntrenadorMapper.toEntityCreate(
                         castEntrenador,
-                        PokemonMapper.toEntity(pokemon)
-
+                        // Pasamos la entidad Pokémon, que ahora puede ser 'null' si es opcional y no se encontró.
+                        pokemonEntity
                 ))
         );
     }
@@ -128,20 +142,17 @@ public class EntrenadorServiceImpl implements EntrenadorService {
                 () -> new EntrenadorNotFoundException("Entrenador no encontrado")
         );
 
-        EntrenadorUpdateRequest castEntrenador = EntrenadorUpdateRequest
-                .builder()
-                .id(entrenadorUpdateRequest.getId())
-                .nombre(entrenadorUpdateRequest.getNombre() != null ? entrenadorUpdateRequest.getNombre().toLowerCase().trim() : null)
-                .regionPreferida(entrenadorUpdateRequest.getRegionPreferida() != null ? entrenadorUpdateRequest.getRegionPreferida().toLowerCase().trim() : null)
-                .tipoPreferido(entrenadorUpdateRequest.getTipoPreferido() != null ? entrenadorUpdateRequest.getTipoPreferido().toLowerCase().trim() : null)
-                .nombrePokemonFavorito(entrenadorUpdateRequest.getNombrePokemonFavorito() != null ? entrenadorUpdateRequest.getNombrePokemonFavorito().toLowerCase().trim() : null)
-                .build();
+        // Asumimos que aquí el campo nombrePokemonFavorito ya está saneado (limpio y sin nulos).
+        Pokemon pokemon = null;
 
-        Pokemon pokemon = entrenadorUpdateRequest.getNombrePokemonFavorito() != null ?
-                PokemonMapper.toEntity(
-                        pokemonService.obtenerPorNombre(entrenadorUpdateRequest.getNombrePokemonFavorito())
-                )
-                : null;
+        if (entrenadorUpdateRequest.getNombrePokemonFavorito() != null && !entrenadorUpdateRequest.getNombrePokemonFavorito().isBlank()) {
+            pokemon = PokemonMapper.toEntity(
+                    pokemonService.obtenerPorNombre(
+                            entrenadorUpdateRequest.getNombrePokemonFavorito().toLowerCase().trim()
+                    )
+            );
+        }
+
 
         EntrenadorMapper.toEntityUpdate(
                 entrenador,

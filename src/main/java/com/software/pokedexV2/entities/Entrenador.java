@@ -20,7 +20,7 @@ public class Entrenador {
     @ManyToOne
     @JoinColumn(
             name = "id_pokemon_favorito",
-            columnDefinition = "id_pokemon"
+            referencedColumnName = "id_pokemon"
     )
     private Pokemon pokemonPreferido;
 
@@ -45,6 +45,10 @@ public class Entrenador {
     )
     private String contrasena;
 
+    @Transient // Indica a JPA que este campo no es una columna de la tabla
+    public String getPassword() {
+        return this.contrasena;
+    }
     @Column(name = "region_preferida")
     private String regionPreferida;
 
