@@ -17,14 +17,14 @@ public class EntrenadorMapper {
             EntrenadorRequest nuevoEntrenador,
             Pokemon pokemonFavorito
     ) {
-       return Entrenador.builder()
-               .nombre(nuevoEntrenador.getNombre())
-               .email(nuevoEntrenador.getEmail())
-               .contrasena(nuevoEntrenador.getContrasena())
-               .regionPreferida(nuevoEntrenador.getRegionPreferida())
-               .tipoPreferido(nuevoEntrenador.getTipoPreferido())
-               .pokemonPreferido(pokemonFavorito)
-               .build();
+        return Entrenador.builder()
+                .nombre(nuevoEntrenador.getNombre())
+                .email(nuevoEntrenador.getEmail())
+                .contrasena(nuevoEntrenador.getContrasena())
+                .regionPreferida(nuevoEntrenador.getRegionPreferida())
+                .tipoPreferido(nuevoEntrenador.getTipoPreferido())
+                .pokemonPreferido(pokemonFavorito)
+                .build();
     }
 
     public static void toEntityUpdate(
@@ -46,31 +46,40 @@ public class EntrenadorMapper {
                 .build();
     }
 
+    /**
+     * Mapea la entidad Entrenador al DTO de respuesta, manejando la nulidad del Pokémon favorito.
+     */
     public static EntrenadorResponse toDTO(
-        Entrenador entrenador
+            Entrenador entrenador
     ){
+        Pokemon pokemonPreferido = entrenador.getPokemonPreferido();
+
+        PokemonResponse pokemonResponse = null;
+
+        if (pokemonPreferido != null) {
+            pokemonResponse = PokemonResponse
+                    .builder()
+                    .id(pokemonPreferido.getIdPokemon())
+                    .nombre(pokemonPreferido.getNombre())
+                    .tipoPrincipal(pokemonPreferido.getTipoPrincipal())
+                    .tipoSecundario(pokemonPreferido.getTipoSecundario())
+                    .spriteNormal(pokemonPreferido.getSpriteNormal())
+                    .spriteShiny(pokemonPreferido.getSpriteShiny())
+                    .build();
+        }
+
         return EntrenadorResponse.builder()
                 .id(entrenador.getId())
                 .nombre(entrenador.getNombre())
                 .email(entrenador.getEmail())
                 .tipoPreferido(entrenador.getTipoPreferido())
                 .regionPreferida(entrenador.getRegionPreferida())
-                .pokemonPreferido(
-                        PokemonResponse
-                                .builder()
-                                .id(entrenador.getPokemonPreferido().getIdPokemon())
-                                .nombre(entrenador.getPokemonPreferido().getNombre())
-                                .tipoPrincipal(entrenador.getPokemonPreferido().getTipoPrincipal())
-                                .tipoSecundario(entrenador.getPokemonPreferido().getTipoSecundario())
-                                .spriteNormal(entrenador.getPokemonPreferido().getSpriteNormal())
-                                .spriteShiny(entrenador.getPokemonPreferido().getSpriteShiny())
-                                .build()
-                )
+                .pokemonPreferido(pokemonResponse) // Pasa el objeto (que puede ser null)
                 .build();
     }
 
     public static List<EntrenadorResponse> toDTOList(
-        List<Entrenador> entrenadores
+            List<Entrenador> entrenadores
     ){
         return entrenadores.stream().map(EntrenadorMapper::toDTO).toList();
     }
