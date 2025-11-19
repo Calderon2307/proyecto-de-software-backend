@@ -156,7 +156,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
         EntrenadorMapper.toEntityUpdate(
                 entrenador,
-                castEntrenador,
+                entrenadorUpdateRequest,
                 pokemon
         );
 
