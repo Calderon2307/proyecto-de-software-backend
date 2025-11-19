@@ -33,9 +33,9 @@ public class EquipoMapper {
     }
 
     // UPDATE
-    public static void toEntityUpdate(Equipo equipo, EquipoUpdateRequest request, Entrenador entrenador) {
+    public static void toEntityUpdate(Equipo equipo, EquipoUpdateRequest request) {
 
-        if (request.getNombreEquipo() != null) {
+        if (request.getNombreEquipo() != null && !request.getNombreEquipo().isBlank()) {
             equipo.setNombreEquipo(request.getNombreEquipo());
         }
     }

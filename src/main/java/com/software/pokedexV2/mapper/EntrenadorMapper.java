@@ -46,9 +46,6 @@ public class EntrenadorMapper {
                 .build();
     }
 
-    /**
-     * Mapea la entidad Entrenador al DTO de respuesta, manejando la nulidad del Pokémon favorito.
-     */
     public static EntrenadorResponse toDTO(
             Entrenador entrenador
     ){

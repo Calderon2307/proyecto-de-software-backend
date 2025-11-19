@@ -91,7 +91,7 @@ public class EntrenadorController {
     }
 
     //DELETE
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/id/{id}")
     public ResponseEntity<GeneralResponse> deleteEntrenadorById(@PathVariable Long id){
         return ResponseBuilder.buildResponse(
                 "Entrenador eliminado",
@@ -100,7 +100,7 @@ public class EntrenadorController {
         );
     }
 
-    @DeleteMapping("/{email}")
+    @DeleteMapping("/email/{email}")
     public ResponseEntity<GeneralResponse> deleteEntrenadorByEmail(@PathVariable String email){
         return ResponseBuilder.buildResponse(
                 "Entrenador eliminado",

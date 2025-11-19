@@ -44,9 +44,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     @Transactional
     public EntrenadorResponse createEntrenador(EntrenadorRequest entrenadorRequest) {
         boolean exist = entrenadorRepository.existsByEmail(entrenadorRequest.getEmail());
-        if (exist) throw new EntrenadorAlredyExistsException("El email ya esta encontrado");
-
-        // --- INICIO DE CORRECCIÓN DE LÓGICA DE NEGOCIO ---
+        if (exist) throw new EntrenadorAlredyExistsException("El email ya esta registrado");
 
         String nombrePokemon = entrenadorRequest.getNombrePokemonFavorito();
         Pokemon pokemonEntity = null;
@@ -67,18 +65,17 @@ public class EntrenadorServiceImpl implements EntrenadorService {
             }
         }
 
-        // --- FIN DE CORRECCIÓN DE LÓGICA DE NEGOCIO ---
 
         String passwordEncrypted = passwordEncoder.encode(entrenadorRequest.getContrasena());
 
         // El DTO de request solo se usa aquí para transferir datos al mapper y a la entidad
         EntrenadorRequest castEntrenador = EntrenadorRequest
                 .builder()
-                .nombre(entrenadorRequest.getNombre().toLowerCase().trim())
+                .nombre(entrenadorRequest.getNombre() != null ? entrenadorRequest.getNombre().toLowerCase().trim() : null)
                 .email(entrenadorRequest.getEmail().toLowerCase().trim())
                 .contrasena(passwordEncrypted)
-                .regionPreferida(entrenadorRequest.getRegionPreferida().toLowerCase().trim())
-                .tipoPreferido(entrenadorRequest.getTipoPreferido().toLowerCase().trim())
+                .regionPreferida(entrenadorRequest.getRegionPreferida() != null ? entrenadorRequest.getRegionPreferida().toLowerCase().trim() : null)
+                .tipoPreferido(entrenadorRequest.getTipoPreferido() != null ? entrenadorRequest.getTipoPreferido().toLowerCase().trim() : null)
                 .build();
 
         return EntrenadorMapper.toDTO(
@@ -159,7 +156,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
         EntrenadorMapper.toEntityUpdate(
                 entrenador,
-                entrenadorUpdateRequest,
+                castEntrenador,
                 pokemon
         );
 
@@ -181,6 +178,7 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     }
 
     @Override
+    @Transactional
     public EntrenadorResponse deleteEntrenadorByEmail(String email) {
         Entrenador entrenador = entrenadorRepository.findByEmail(email).orElseThrow(
                 () -> new EntrenadorNotFoundException("Entrenador no encontrado")

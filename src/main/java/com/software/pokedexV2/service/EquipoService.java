@@ -21,5 +21,5 @@ public interface EquipoService {
     EquipoResponse updateTeam(EquipoUpdateRequest request);
 
     // DELETE
-    boolean deleteTeam(Long id);
+    EquipoResponse deleteTeam(Long id);
 }
