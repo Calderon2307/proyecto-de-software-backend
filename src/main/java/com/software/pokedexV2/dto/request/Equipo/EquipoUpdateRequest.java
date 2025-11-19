@@ -17,7 +17,4 @@ public class EquipoUpdateRequest {
     @JsonProperty("nombre_equipo")
     private String nombreEquipo;
 
-    @JsonProperty("id_entrenador")
-    private Long idEntrenador;
-
 }
