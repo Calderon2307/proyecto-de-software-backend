@@ -54,15 +54,9 @@ public class EntrenadorMapper {
         PokemonResponse pokemonResponse = null;
 
         if (pokemonPreferido != null) {
-            pokemonResponse = PokemonResponse
-                    .builder()
-                    .id(pokemonPreferido.getIdPokemon())
-                    .nombre(pokemonPreferido.getNombre())
-                    .tipoPrincipal(pokemonPreferido.getTipoPrincipal())
-                    .tipoSecundario(pokemonPreferido.getTipoSecundario())
-                    .spriteNormal(pokemonPreferido.getSpriteNormal())
-                    .spriteShiny(pokemonPreferido.getSpriteShiny())
-                    .build();
+            // La corrección para el problema de 'null' en la respuesta:
+            // Delegar la construcción del DTO a PokemonMapper
+            pokemonResponse = PokemonMapper.toDTO(pokemonPreferido);
         }
 
         return EntrenadorResponse.builder()
@@ -71,7 +65,7 @@ public class EntrenadorMapper {
                 .email(entrenador.getEmail())
                 .tipoPreferido(entrenador.getTipoPreferido())
                 .regionPreferida(entrenador.getRegionPreferida())
-                .pokemonPreferido(pokemonResponse) // Pasa el objeto (que puede ser null)
+                .pokemonPreferido(pokemonResponse) // Pasa el objeto (que ahora debe estar completo)
                 .build();
     }
 
