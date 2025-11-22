@@ -20,5 +20,6 @@ public interface EquipoRepository extends JpaRepository<Equipo, Long> {
     boolean existsByNombreEquipoAndEntrenador_Id(String nombreEquipo, Long idEntrenador);
 
     //Comprobar el numero de equipos quetiene un entrenador
-    int countAllByEntrenador_Id(Long idEntrenador);
+    int countByEntrenador_Id(Long idEntrenador);
+
 }

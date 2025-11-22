@@ -6,6 +6,8 @@ import com.software.pokedexV2.exception.Entrenador.EntrenadorMismatchedCredentia
 import com.software.pokedexV2.exception.Entrenador.EntrenadorNotFoundException;
 import com.software.pokedexV2.exception.Equipo.EquipoAlredyExistsException;
 import com.software.pokedexV2.exception.Equipo.EquipoNotFoundException;
+import com.software.pokedexV2.exception.Equipo.PokemonLimitException;
+import com.software.pokedexV2.exception.Equipo.TeamLimitException;
 import com.software.pokedexV2.exception.Pokemon.PokemonAlredyExistsException;
 import com.software.pokedexV2.exception.Pokemon.PokemonNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -56,6 +58,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EquipoAlredyExistsException.class)
     public ResponseEntity<ApiErrorResponse> handleEquipoAlreadyExistsException(EquipoAlredyExistsException e) {
+        return buildErrorResponse(e, HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(PokemonLimitException.class)
+    public ResponseEntity<ApiErrorResponse> handlePokemonLimitException(PokemonLimitException e) {
+        return buildErrorResponse(e, HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(TeamLimitException.class)
+    public ResponseEntity<ApiErrorResponse> handleTeamLimitException(TeamLimitException e) {
         return buildErrorResponse(e, HttpStatus.CONFLICT, e.getMessage());
     }
 
