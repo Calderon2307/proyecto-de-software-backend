@@ -15,6 +15,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+// --- Importaciones de CORS ---
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
+// ----------------------------
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -46,9 +53,36 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
+    // 🛑 NUEVO BEAN DE CONFIGURACIÓN DE CORS
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Permite el acceso desde el puerto de desarrollo del frontend (ej: 3000)
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
+
+        // Define los métodos permitidos
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+
+        // Permite los encabezados necesarios para JWT (Authorization) y otros datos
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
+
+        // Permite enviar cookies y encabezados de autenticación
+        configuration.setAllowCredentials(true);
+
+        // Registra la configuración para todas las rutas ("/**")
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     // 4. Cadena de filtros de seguridad
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        // 🛑 AÑADIR CORS A LA CADENA DE SEGURIDAD
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
         http.csrf(AbstractHttpConfigurer::disable)
                 // Maneja el error 401 si el token es inválido o está ausente
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))

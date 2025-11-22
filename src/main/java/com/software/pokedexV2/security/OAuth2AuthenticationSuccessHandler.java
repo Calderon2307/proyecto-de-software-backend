@@ -18,7 +18,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private JwtUtils jwtUtils;
 
     // URL frontal donde enviar el JWT
-    private final String redirectUrl = "http://localhost:3000/oauth/redirect";
+    private final String redirectUrl = "http://localhost:5173/oauth/redirect";
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
