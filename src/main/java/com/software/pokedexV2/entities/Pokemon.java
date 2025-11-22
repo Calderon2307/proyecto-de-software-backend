@@ -22,7 +22,7 @@ public class Pokemon {
     @Column(name = "nombre")
     private String nombre;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "tipos")
     private List<String> tipos;
 

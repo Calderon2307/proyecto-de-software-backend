@@ -6,6 +6,7 @@ import com.software.pokedexV2.dto.response.Entrenador.EntrenadorResponse;
 import com.software.pokedexV2.dto.response.GeneralResponse;
 import com.software.pokedexV2.service.EntrenadorService;
 import com.software.pokedexV2.utils.JwtUtils;
+import com.software.pokedexV2.utils.ResponseBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -56,14 +57,20 @@ public class AuthController {
         responseData.put("type", "Bearer");
 
         // 4. Retornar la respuesta completa
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                GeneralResponse.builder()
-                        .message("Entrenador registrado exitosamente.")
-                        .status(HttpStatus.CREATED.value())
-                        .date(LocalDate.now())
-                        .data(responseData)
-                        .build()
+        return ResponseBuilder.buildResponse(
+                "Entrenador registrado exitosamente.",
+                HttpStatus.CREATED,
+                responseData
         );
+//        return ResponseEntity.status(HttpStatus.CREATED).body(
+//                GeneralResponse.builder()
+//                        .uri("")
+//                        .message("Entrenador registrado exitosamente.")
+//                        .status(HttpStatus.CREATED.value())
+//                        .date(LocalDate.now())
+//                        .data(responseData)
+//                        .build()
+//        );
     }
 
     // --- LOGIN JWT ---
@@ -81,12 +88,18 @@ public class AuthController {
         responseData.put("type", "Bearer");
         responseData.put("email", loginRequest.getEmail());
 
-        return ResponseEntity.ok(
-                GeneralResponse.builder()
-                        .message("Login JWT exitoso.")
-                        .data(responseData)
-                        .status(HttpStatus.OK.value())
-                        .build()
+        return ResponseBuilder.buildResponse(
+                "Login exitoso",
+                HttpStatus.OK,
+                responseData
         );
+
+//        return ResponseEntity.ok(
+//                GeneralResponse.builder()
+//                        .message("Login JWT exitoso.")
+//                        .data(responseData)
+//                        .status(HttpStatus.OK.value())
+//                        .build()
+//        );
     }
 }

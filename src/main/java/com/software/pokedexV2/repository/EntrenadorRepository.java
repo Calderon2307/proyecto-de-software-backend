@@ -19,17 +19,5 @@ public interface EntrenadorRepository extends JpaRepository<Entrenador, Long> {
     int countAllByTipoPreferido(String tipoPreferido);
     int countAllByPokemonPreferido_Nombre(String nombre);
 
-    @Query("SELECT e FROM Entrenador e " +
-            "WHERE e.pokemonPreferido.tipoPrincipal = :tipo " +
-            "OR " +
-            "e.pokemonPreferido.tipoSecundario = :tipo")
-    List<Entrenador> findByPokemonPreferidoType(String tipo);
-
-    // 🛑 SOLUCIÓN DEFINITIVA: Método para recargar la entidad CON el Pokémon cargado.
-    @Query("SELECT e FROM Entrenador e LEFT JOIN FETCH e.pokemonPreferido WHERE e.id = :id")
-    Optional<Entrenador> findByIdWithPokemon(Long id);
-
-
-
     void deleteByEmail(String email);
 }

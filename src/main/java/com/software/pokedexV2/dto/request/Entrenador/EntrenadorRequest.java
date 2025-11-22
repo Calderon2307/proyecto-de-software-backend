@@ -1,6 +1,7 @@
 package com.software.pokedexV2.dto.request.Entrenador;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.software.pokedexV2.dto.request.Pokemon.PokemonRequest;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -11,7 +12,7 @@ import lombok.*;
 public class EntrenadorRequest {
 
     @JsonProperty(value = "pokemon_favorito")
-    private String nombrePokemonFavorito;
+    private PokemonRequest pokemonFavorito;
 
     @JsonProperty(value = "nombre")
     @NotBlank(message = "El nombre no puede estar vacio.")

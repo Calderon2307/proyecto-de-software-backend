@@ -26,7 +26,7 @@ public class PokemonEquipo {
     private Equipo equipo;
 
     // Muchos PokemonEquipo pueden apuntar al mismo Pokemon
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "id_pokemon",
             referencedColumnName = "id_pokemon",

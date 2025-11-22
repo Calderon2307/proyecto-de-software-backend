@@ -2,6 +2,7 @@ package com.software.pokedexV2.service.impl;
 
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorRequest;
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorUpdateRequest;
+import com.software.pokedexV2.dto.request.Pokemon.PokemonRequest;
 import com.software.pokedexV2.dto.response.Entrenador.EntrenadorResponse;
 import com.software.pokedexV2.dto.response.Pokemon.PokemonResponse;
 import com.software.pokedexV2.entities.Entrenador;
@@ -11,6 +12,7 @@ import com.software.pokedexV2.exception.Entrenador.EntrenadorNotFoundException;
 import com.software.pokedexV2.mapper.EntrenadorMapper;
 import com.software.pokedexV2.mapper.PokemonMapper;
 import com.software.pokedexV2.repository.EntrenadorRepository;
+import com.software.pokedexV2.repository.PokemonRepository;
 import com.software.pokedexV2.service.EntrenadorService;
 import com.software.pokedexV2.service.PokemonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,16 +34,18 @@ public class EntrenadorServiceImpl implements EntrenadorService {
     private final EntrenadorRepository entrenadorRepository;
     private final PokemonService pokemonService;
     private final PasswordEncoder passwordEncoder;
+    private final PokemonRepository pokemonRepository;
 
     @Autowired
     public EntrenadorServiceImpl(
             EntrenadorRepository entrenadorRepository,
             PokemonService pokemonService,
-            PasswordEncoder passwordEncoder
-    ){
+            PasswordEncoder passwordEncoder,
+            PokemonRepository pokemonRepository){
         this.entrenadorRepository = entrenadorRepository;
         this.pokemonService = pokemonService;
         this.passwordEncoder = passwordEncoder;
+        this.pokemonRepository = pokemonRepository;
     }
 
     //CREATE
@@ -51,72 +55,90 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
         log.info("INICIO REGISTRO: Procesando email={}", entrenadorRequest.getEmail());
 
-        boolean exist = entrenadorRepository.existsByEmail(entrenadorRequest.getEmail());
-        if (exist) throw new EntrenadorAlredyExistsException("El email ya esta registrado");
+        if (entrenadorRepository.existsByEmail(entrenadorRequest.getEmail())) {
+            throw new EntrenadorAlredyExistsException("El email ya esta registrado");
+        }
 
-        String nombrePokemon = entrenadorRequest.getNombrePokemonFavorito();
         Pokemon pokemonEntity = null;
 
-        // 1. Validar y buscar el Pokémon solo si se proporciona el nombre.
-        if (StringUtils.hasText(nombrePokemon)) {
+        // 1. Procesar Pokémon favorito si viene en el request
+        PokemonRequest pokemonFavRequest = entrenadorRequest.getPokemonFavorito();
+
+        if (pokemonFavRequest != null &&
+                pokemonFavRequest.getNombre() != null &&
+                !pokemonFavRequest.getNombre().isBlank()) {
+
+            String nombreNormalizado = pokemonFavRequest.getNombre()
+                    .toLowerCase()
+                    .trim();
+
+            log.info("PUNTO 1: Pokémon favorito recibido: {}", nombreNormalizado);
+
             try {
-                // Normalizar la cadena antes de la búsqueda
-                String nombreNormalizado = nombrePokemon.toLowerCase().trim();
-                log.info("PUNTO 1: Buscando Pokémon normalizado: {}", nombreNormalizado);
+                // INTENTO 1: Buscar en BD
+                PokemonResponse pokemonBD = pokemonService.obtenerPorNombre(nombreNormalizado);
+                pokemonEntity = PokemonMapper.toEntity(pokemonBD);
 
-                PokemonResponse pokemonResponse = pokemonService.obtenerPorNombre(
-                        nombreNormalizado
-                );
+                log.info("PUNTO 2A: Pokémon EXISTE en BD. ID={}", pokemonEntity.getIdPokemon());
 
-                pokemonEntity = PokemonMapper.toEntity(pokemonResponse);
-                log.info("PUNTO 2: Pokémon encontrado. ID de la Entidad: {}", pokemonEntity.getIdPokemon());
             } catch (RuntimeException e) {
-                log.error("ERROR CRÍTICO (Punto 2): Pokémon no encontrado para: {}", nombrePokemon, e);
-                throw new EntrenadorNotFoundException("El Pokémon favorito especificado no fue encontrado.");
+                log.warn("PUNTO 2A: El Pokémon no existía en BD. Se intentará crear: {}", nombreNormalizado);
+
+                try {
+                    // Ajustar el request original con el nombre normalizado
+                    pokemonFavRequest.setNombre(nombreNormalizado);
+
+                    PokemonResponse creado = pokemonService.createPokemon(pokemonFavRequest);
+                    pokemonEntity = PokemonMapper.toEntity(creado);
+
+                    log.info("PUNTO 2B: Pokémon CREADO correctamente. ID={}", pokemonEntity.getIdPokemon());
+
+                } catch (RuntimeException errCreacion) {
+                    log.error("ERROR: No se pudo crear el Pokémon {}", nombreNormalizado, errCreacion);
+                    throw new EntrenadorNotFoundException("El Pokémon favorito no existe y no pudo ser creado.");
+                }
             }
         } else {
-            log.warn("PUNTO 1: Nombre de Pokémon vacío o nulo.");
+            log.warn("No se envió Pokémon favorito en el request.");
         }
 
-
-        String passwordEncrypted = passwordEncoder.encode(entrenadorRequest.getContrasena());
-
-        // 2. Construir el DTO sanitizado para la entidad
-        EntrenadorRequest castEntrenador = EntrenadorRequest
-                .builder()
-                .nombre(entrenadorRequest.getNombre() != null ? entrenadorRequest.getNombre().toLowerCase().trim() : null)
+        // 2. Sanitizar info del entrenador
+        EntrenadorRequest castEntrenador = EntrenadorRequest.builder()
+                .nombre(entrenadorRequest.getNombre().toLowerCase().trim())
                 .email(entrenadorRequest.getEmail().toLowerCase().trim())
-                .contrasena(passwordEncrypted)
-                .regionPreferida(entrenadorRequest.getRegionPreferida() != null ? entrenadorRequest.getRegionPreferida().toLowerCase().trim() : null)
-                .tipoPreferido(entrenadorRequest.getTipoPreferido() != null ? entrenadorRequest.getTipoPreferido().toLowerCase().trim() : null)
+                .contrasena(passwordEncoder.encode(entrenadorRequest.getContrasena()))
+                .regionPreferida(entrenadorRequest.getRegionPreferida() != null
+                        ? entrenadorRequest.getRegionPreferida().toLowerCase().trim()
+                        : null)
+                .tipoPreferido(entrenadorRequest.getTipoPreferido() != null
+                        ? entrenadorRequest.getTipoPreferido().toLowerCase().trim()
+                        : null)
+                .pokemonFavorito(null) // se ignora aquí, se maneja abajo
                 .build();
 
-        // 3. Guardar la entidad (el pokemonEntity ya está asignado en el mapper)
-        Entrenador newEntrenador = EntrenadorMapper.toEntityCreate(castEntrenador, pokemonEntity);
-        Entrenador savedEntrenador = entrenadorRepository.save(newEntrenador);
+        // 3. Crear entidad
+        Entrenador entrenadorEntity = EntrenadorMapper.toEntityCreate(castEntrenador, pokemonEntity);
+        Entrenador saved = entrenadorRepository.save(entrenadorEntity);
 
-        // ✅ SOLUCIÓN DEFINITIVA: Usar saveAndFlush() para persistir inmediatamente
-        // y luego recargar la entidad para asegurar que la relación esté en la sesión
         if (pokemonEntity != null) {
-            savedEntrenador = entrenadorRepository.saveAndFlush(savedEntrenador);
-            log.info("PUNTO 3: Relación Pokémon persistida. ID: {}", savedEntrenador.getPokemonPreferido().getIdPokemon());
-        } else {
-            log.warn("PUNTO 3: No se asignó Pokémon. El campo se devolverá NULL.");
+            saved = entrenadorRepository.saveAndFlush(saved);
+            log.info("Relación Pokémon persistida. ID={}", saved.getPokemonPreferido().getIdPokemon());
         }
 
-        // 4. Mapear a DTO y retornar
-        EntrenadorResponse response = EntrenadorMapper.toDTO(savedEntrenador);
-        log.info("PUNTO 4: Respuesta final. Pokémon Preferido (DTO): {}",
+        // 4. Mapear respuesta
+        EntrenadorResponse response = EntrenadorMapper.toDTO(saved);
+        log.info("Entrenador creado con Pokémon favorito: {}",
                 response.getPokemonPreferido() != null ? response.getPokemonPreferido().getNombre() : "NULL");
 
         return response;
     }
 
+
     //READ
     @Override
     public EntrenadorResponse getById(Long id) {
         return EntrenadorMapper.toDTO(
-                entrenadorRepository.findByIdWithPokemon(id).orElseThrow(
+                entrenadorRepository.findById(id).orElseThrow(
                         () -> new EntrenadorNotFoundException("Entrenador no encontrado")
                 )
         );
@@ -169,12 +191,34 @@ public class EntrenadorServiceImpl implements EntrenadorService {
 
         Pokemon pokemon = null;
 
-        if (entrenadorUpdateRequest.getNombrePokemonFavorito() != null && !entrenadorUpdateRequest.getNombrePokemonFavorito().isBlank()) {
-            pokemon = PokemonMapper.toEntity(
-                    pokemonService.obtenerPorNombre(
-                            entrenadorUpdateRequest.getNombrePokemonFavorito().toLowerCase().trim()
-                    )
-            );
+        if (entrenadorUpdateRequest.getPokemonFavorito() != null &&
+                entrenadorUpdateRequest.getPokemonFavorito().getNombre() != null &&
+                !entrenadorUpdateRequest.getPokemonFavorito().getNombre().isBlank()) {
+
+            String nombreNormalizado = entrenadorUpdateRequest
+                    .getPokemonFavorito()
+                    .getNombre()
+                    .toLowerCase()
+                    .trim();
+
+            // ----- 1. Revisar si existe en BD -----
+            boolean exists = pokemonRepository.existsByNombre(nombreNormalizado);
+
+            if (exists) {
+                // Si existe, obtenerlo y convertirlo a entidad
+                PokemonResponse pokemonBD = pokemonService.obtenerPorNombre(nombreNormalizado);
+                pokemon = PokemonMapper.toEntity(pokemonBD);
+
+            } else {
+                // ----- 2. Si NO existe → crearlo -----
+                entrenadorUpdateRequest.getPokemonFavorito().setNombre(nombreNormalizado);
+
+                PokemonResponse creado = pokemonService.createPokemon(
+                        entrenadorUpdateRequest.getPokemonFavorito()
+                );
+
+                pokemon = PokemonMapper.toEntity(creado);
+            }
         }
 
         EntrenadorMapper.toEntityUpdate(

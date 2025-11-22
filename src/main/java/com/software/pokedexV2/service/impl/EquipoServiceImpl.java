@@ -12,6 +12,7 @@ import com.software.pokedexV2.entities.Entrenador;
 import com.software.pokedexV2.entities.Pokemon;
 import com.software.pokedexV2.entities.PokemonEquipo;
 import com.software.pokedexV2.exception.Entrenador.EntrenadorNotFoundException;
+import com.software.pokedexV2.exception.Equipo.EquipoAlredyExistsException;
 import com.software.pokedexV2.exception.Equipo.EquipoNotFoundException;
 import com.software.pokedexV2.exception.Equipo.PokemonLimitException;
 import com.software.pokedexV2.exception.Equipo.TeamLimitException;
@@ -65,6 +66,15 @@ public class EquipoServiceImpl implements EquipoService {
                 () -> new EntrenadorNotFoundException("Entrenador no encontrado")
         );
 
+        String nombreNormalizado = request.getNombreEquipo().toLowerCase().trim();
+
+        boolean equipoExists = equipoRepository.existsByNombreEquipoAndEntrenador_Id(
+                nombreNormalizado,
+                entrenador.getId()
+        );
+
+        if (equipoExists) throw new EquipoAlredyExistsException("Ya hy un equipo con ese nombre.");
+
         if (request.getEquipoPokemon().isEmpty() || request.getEquipoPokemon().size() > 6) {
             throw new PokemonLimitException("Un equipo debe tener entre 1 y 6 Pokémon.");
         }
@@ -74,8 +84,6 @@ public class EquipoServiceImpl implements EquipoService {
         if (equiposActuales >= 6) {
             throw new TeamLimitException("El entrenador ya tiene el máximo de 6 equipos.");
         }
-
-        String nombreNormalizado = request.getNombreEquipo().toLowerCase().trim();
 
         request.setNombreEquipo(nombreNormalizado);
 
