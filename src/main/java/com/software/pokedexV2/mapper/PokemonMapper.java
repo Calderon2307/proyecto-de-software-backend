@@ -18,6 +18,7 @@ public class PokemonMapper {
         return Pokemon.builder()
                 .nombre(request.getNombre())
                 .tipos(request.getTipos())
+                .stats(request.getStats())
                 .spriteNormal(request.getSpriteNormal())
                 .spriteShiny(request.getSpriteShiny())
                 .build();
@@ -36,6 +37,10 @@ public class PokemonMapper {
 
         if (tipos != null && !tipos.isEmpty()) {
             pokemon.setTipos(updateReq.getTipos());
+        }
+
+        if (updateReq.getStats() != null && !updateReq.getStats().isEmpty()) {
+            pokemon.setStats(updateReq.getStats());
         }
 
         if (updateReq.getSpriteNormal() != null) {
@@ -84,6 +89,7 @@ public class PokemonMapper {
                 .nombre(pokemon.getNombre())
                 .spriteNormal(pokemon.getSpriteNormal())
                 .spriteShiny(pokemon.getSpriteShiny())
+                .stats(pokemon.getStats())
                 .posicionEquipo(posicionEquipo)
                 .build();
     }

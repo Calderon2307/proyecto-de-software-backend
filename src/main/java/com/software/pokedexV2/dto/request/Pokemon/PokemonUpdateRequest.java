@@ -1,6 +1,8 @@
 package com.software.pokedexV2.dto.request.Pokemon;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.software.pokedexV2.entities.PokemonStat;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.*;
@@ -22,6 +24,9 @@ public class PokemonUpdateRequest {
 
     @JsonProperty("tipos")
     private List<String> tipos;
+
+    @JsonProperty(value = "stats")
+    private List<PokemonStat> stats;
 
     @JsonProperty("sprite_normal")
     private String spriteNormal;

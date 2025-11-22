@@ -11,6 +11,7 @@ import com.software.pokedexV2.repository.PokemonRepository;
 import com.software.pokedexV2.service.PokemonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class PokemonServiceImpl implements PokemonService {
 
     // CREATE
     @Override
+    @Transactional
     public PokemonResponse createPokemon(PokemonRequest pokemonRequest) {
 
         String nombreNormalizado = pokemonRequest.getNombre().toLowerCase().trim();
@@ -36,6 +38,7 @@ public class PokemonServiceImpl implements PokemonService {
 
         PokemonRequest requestNormalizado = PokemonRequest.builder()
                 .nombre(nombreNormalizado)
+                .stats(pokemonRequest.getStats())
                 .tipos(tiposNormalizados)
                 .spriteNormal(pokemonRequest.getSpriteNormal())
                 .spriteShiny(pokemonRequest.getSpriteShiny())

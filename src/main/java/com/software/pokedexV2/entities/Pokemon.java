@@ -23,8 +23,12 @@ public class Pokemon {
     private String nombre;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "tipos")
+    @CollectionTable(name = "pokemon_tipos", joinColumns = @JoinColumn(name = "id_pokemon"))
     private List<String> tipos;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "pokemon_stats", joinColumns = @JoinColumn(name = "id_pokemon"))
+    private List<PokemonStat> stats;
 
     @Column(name = "sprite_normal", columnDefinition = "TEXT")
     private String spriteNormal;
