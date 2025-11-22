@@ -3,6 +3,8 @@ package com.software.pokedexV2.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 @Data
 @NoArgsConstructor
@@ -16,14 +18,17 @@ public class Pokemon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_pokemon")
     private Long idPokemon;
+
     @Column(name = "nombre")
     private String nombre;
-    @Column(name = "tipo_principal")
-    private String tipoPrincipal;
-    @Column(name = "tipo_secundario")
-    private String tipoSecundario;
+
+    @ElementCollection
+    @Column(name = "tipos")
+    private List<String> tipos;
+
     @Column(name = "sprite_normal", columnDefinition = "TEXT")
     private String spriteNormal;
+
     @Column(name = "sprite_shiny", columnDefinition = "TEXT")
     private String spriteShiny;
 }

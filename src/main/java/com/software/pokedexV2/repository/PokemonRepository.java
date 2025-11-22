@@ -14,9 +14,6 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
 
     boolean existsByNombre(String nombre);
     Optional<Pokemon> findByNombre(String nombre);
-    List<Pokemon> findAllByTipoPrincipal(String tipoPrincipal);
-
-    List<Pokemon> findAllByTipoSecundario(String tipoSecundario);
 
     void deleteByNombre(String nombre);
 }

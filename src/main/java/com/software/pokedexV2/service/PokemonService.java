@@ -14,8 +14,6 @@ public interface PokemonService {
     // READ
     PokemonResponse obtenerPorNombre(String nombre);
     List<PokemonResponse> getAll();
-    List<PokemonResponse> getAllByTipoPrincipal(String tipoPrincipal);
-    List<PokemonResponse> getAllByTipoSecundario(String tipoSecundario);
 
     // UPDATE
     PokemonResponse updatePokemon(PokemonUpdateRequest pokemonUpdateRequest);

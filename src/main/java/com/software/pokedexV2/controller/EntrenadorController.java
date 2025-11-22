@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/pokedexV2/api/entrenador")
+@RequestMapping("/api/v2/entrenador")
 public class EntrenadorController {
 
     private final EntrenadorService entrenadorService;

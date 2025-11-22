@@ -1,7 +1,6 @@
 package com.software.pokedexV2.dto.response.Equipo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.software.pokedexV2.dto.response.Entrenador.EntrenadorSummaryResponse;
 import com.software.pokedexV2.dto.response.Pokemon.PokemonEquipoResponse;
 import lombok.*;
 
@@ -12,13 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EquipoResponse {
+public class EquipoSummaryResponse {
 
     @JsonProperty("id_equipo")
     private Long idEquipo;
-
-    @JsonProperty("entrenador")
-    private EntrenadorSummaryResponse entrenador;
 
     @JsonProperty("nombre_equipo")
     private String nombreEquipo;

@@ -4,6 +4,10 @@ import com.software.pokedexV2.dto.response.ApiErrorResponse;
 import com.software.pokedexV2.exception.Entrenador.EntrenadorAlredyExistsException;
 import com.software.pokedexV2.exception.Entrenador.EntrenadorMismatchedCredentialsException;
 import com.software.pokedexV2.exception.Entrenador.EntrenadorNotFoundException;
+import com.software.pokedexV2.exception.Equipo.EquipoAlredyExistsException;
+import com.software.pokedexV2.exception.Equipo.EquipoNotFoundException;
+import com.software.pokedexV2.exception.Pokemon.PokemonAlredyExistsException;
+import com.software.pokedexV2.exception.Pokemon.PokemonNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -31,6 +35,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntrenadorMismatchedCredentialsException.class)
     public ResponseEntity<ApiErrorResponse> handleEntrenadorMismatchedCredentialsException(EntrenadorMismatchedCredentialsException e) {
         return buildErrorResponse(e, HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    //Excepciones de Pokemon
+    @ExceptionHandler(PokemonNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handlePokemonNotFoundException(PokemonNotFoundException e) {
+        return buildErrorResponse(e, HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(PokemonAlredyExistsException.class)
+    public ResponseEntity<ApiErrorResponse> handlePokemonAlreadyExistsException(PokemonAlredyExistsException e) {
+        return buildErrorResponse(e, HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    //Excepciones de Equipo
+    @ExceptionHandler(EquipoNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleEquipoNotFoundException(EquipoNotFoundException e) {
+        return buildErrorResponse(e, HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(EquipoAlredyExistsException.class)
+    public ResponseEntity<ApiErrorResponse> handleEquipoAlreadyExistsException(EquipoAlredyExistsException e) {
+        return buildErrorResponse(e, HttpStatus.CONFLICT, e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
