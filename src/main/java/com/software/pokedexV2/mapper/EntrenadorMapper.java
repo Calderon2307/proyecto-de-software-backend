@@ -3,6 +3,7 @@ package com.software.pokedexV2.mapper;
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorRequest;
 import com.software.pokedexV2.dto.request.Entrenador.EntrenadorUpdateRequest;
 import com.software.pokedexV2.dto.response.Entrenador.EntrenadorResponse;
+import com.software.pokedexV2.dto.response.Entrenador.EntrenadorSummaryResponse;
 import com.software.pokedexV2.dto.response.Pokemon.PokemonResponse;
 import com.software.pokedexV2.entities.Entrenador;
 import com.software.pokedexV2.entities.Pokemon;
@@ -54,9 +55,14 @@ public class EntrenadorMapper {
         PokemonResponse pokemonResponse = null;
 
         if (pokemonPreferido != null) {
-            // La corrección para el problema de 'null' en la respuesta:
-            // Delegar la construcción del DTO a PokemonMapper
-            pokemonResponse = PokemonMapper.toDTO(pokemonPreferido);
+            pokemonResponse = PokemonResponse
+                    .builder()
+                    .id(pokemonPreferido.getIdPokemon())
+                    .nombre(pokemonPreferido.getNombre())
+                    .tipos(pokemonPreferido.getTipos())
+                    .spriteNormal(pokemonPreferido.getSpriteNormal())
+                    .spriteShiny(pokemonPreferido.getSpriteShiny())
+                    .build();
         }
 
         return EntrenadorResponse.builder()
@@ -65,7 +71,14 @@ public class EntrenadorMapper {
                 .email(entrenador.getEmail())
                 .tipoPreferido(entrenador.getTipoPreferido())
                 .regionPreferida(entrenador.getRegionPreferida())
-                .pokemonPreferido(pokemonResponse) // Pasa el objeto (que ahora debe estar completo)
+                .pokemonPreferido(pokemonResponse)
+                .build();
+    }
+
+    public static EntrenadorSummaryResponse toSummaryDTO(Entrenador entrenador){
+        return EntrenadorSummaryResponse.builder()
+                .id(entrenador.getId())
+                .nombre(entrenador.getNombre())
                 .build();
     }
 

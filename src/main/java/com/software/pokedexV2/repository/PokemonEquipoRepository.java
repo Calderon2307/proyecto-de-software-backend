@@ -10,12 +10,12 @@ import java.util.Optional;
 @Repository
 public interface PokemonEquipoRepository extends JpaRepository<PokemonEquipo, Long> {
 
-    // Obtener todos los Pokémon de un equipo por el id del equipo
-    List<PokemonEquipo> findByEquipo_IdEquipo(Long idEquipo);
+    List<PokemonEquipo> findByEquipo_IdEquipoOrderByPosicion(Long equipoIdEquipo);
 
     // Buscar un registro concreto por equipo y posición
     Optional<PokemonEquipo> findByEquipo_IdEquipoAndPosicion(Long idEquipo, Integer posicion);
 
+    void deleteByEquipo_IdEquipo(Long idEquipo);
     // Saber si un Pokémon ya está en el equipo 
    // boolean existsByEquipo_IdEquipoAndPokemon_IdPokemon(Long idEquipo, Long idPokemon);
 }

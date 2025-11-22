@@ -26,12 +26,14 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+    private final EntrenadorService entrenadorService;
+    private final JwtUtils jwtUtils;
 
-    @Autowired
-    private EntrenadorService entrenadorService;
-
-    @Autowired
-    private JwtUtils jwtUtils;
+    public AuthController(AuthenticationManager authenticationManager, EntrenadorService entrenadorService, JwtUtils jwtUtils) {
+        this.authenticationManager = authenticationManager;
+        this.entrenadorService = entrenadorService;
+        this.jwtUtils = jwtUtils;
+    }
 
     // --- REGISTRO CON TOKEN JWT ---
     @PostMapping("/register")

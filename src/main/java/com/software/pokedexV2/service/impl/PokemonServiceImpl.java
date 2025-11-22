@@ -4,6 +4,8 @@ import com.software.pokedexV2.dto.request.Pokemon.PokemonRequest;
 import com.software.pokedexV2.dto.request.Pokemon.PokemonUpdateRequest;
 import com.software.pokedexV2.dto.response.Pokemon.PokemonResponse;
 import com.software.pokedexV2.entities.Pokemon;
+import com.software.pokedexV2.exception.Pokemon.PokemonAlredyExistsException;
+import com.software.pokedexV2.exception.Pokemon.PokemonNotFoundException;
 import com.software.pokedexV2.mapper.PokemonMapper;
 import com.software.pokedexV2.repository.PokemonRepository;
 import com.software.pokedexV2.service.PokemonService;
@@ -22,30 +24,25 @@ public class PokemonServiceImpl implements PokemonService {
     @Override
     public PokemonResponse createPokemon(PokemonRequest pokemonRequest) {
 
-        String nombre = normalize(pokemonRequest.getNombre());
-        String tipoPrincipal = normalize(pokemonRequest.getTipoPrincipal());
-        String tipoSecundario = normalize(pokemonRequest.getTipoSecundario());
+        String nombreNormalizado = pokemonRequest.getNombre().toLowerCase().trim();
+        List<String> tiposNormalizados = pokemonRequest.getTipos().stream()
+                .map(t -> t.toLowerCase().trim())
+                .toList();
 
-        boolean existe = pokemonRepository.existsByNombre(nombre);
+        boolean existe = pokemonRepository.existsByNombre(nombreNormalizado);
         if (existe) {
-            throw new RuntimeException("El pokemon ya existe");
+            throw new PokemonAlredyExistsException("El pokemon ya existe");
         }
 
         PokemonRequest requestNormalizado = PokemonRequest.builder()
-                .nombre(nombre)
-                .tipoPrincipal(tipoPrincipal)
-                .tipoSecundario(tipoSecundario)
+                .nombre(nombreNormalizado)
+                .tipos(tiposNormalizados)
                 .spriteNormal(pokemonRequest.getSpriteNormal())
                 .spriteShiny(pokemonRequest.getSpriteShiny())
                 .build();
 
-        Pokemon pokemon = PokemonMapper.toEntityCreate(requestNormalizado);
-        Pokemon guardado = pokemonRepository.save(pokemon);
-
-        return PokemonMapper.toDTO(guardado);
+        return PokemonMapper.toDTO(pokemonRepository.save(PokemonMapper.toEntityCreate(requestNormalizado)));
     }
-
-
 
     // READ
     @Override
@@ -54,7 +51,7 @@ public class PokemonServiceImpl implements PokemonService {
         String nombreNormalizado = normalize(nombre);
 
         Pokemon pokemon = pokemonRepository.findByNombre(nombreNormalizado)
-                .orElseThrow(() -> new RuntimeException("Pokemon no encontrado"));
+                .orElseThrow(() -> new PokemonNotFoundException("Pokemon no encontrado"));
 
         return PokemonMapper.toDTO(pokemon);
     }
@@ -66,35 +63,33 @@ public class PokemonServiceImpl implements PokemonService {
         return PokemonMapper.toDTOList(pokemons);
     }
 
-    @Override
-    public List<PokemonResponse> getAllByTipoPrincipal(String tipoPrincipal) {
-        List<Pokemon> pokemons = pokemonRepository.findAllByTipoPrincipal(tipoPrincipal);
-        return PokemonMapper.toDTOList(pokemons);
-    }
-
-    @Override
-    public List<PokemonResponse> getAllByTipoSecundario(String tipoSecundario) {
-        List<Pokemon> pokemons = pokemonRepository.findAllByTipoSecundario(tipoSecundario);
-        return PokemonMapper.toDTOList(pokemons);
-    }
-
     // UPDATE
     @Override
     public PokemonResponse updatePokemon(PokemonUpdateRequest pokemonUpdateRequest) {
-        Pokemon pokemon = pokemonRepository.findById(pokemonUpdateRequest.getId())
-                .orElseThrow(() -> new RuntimeException("Pokemon no encontrado"));
+        String nombreNormalizado = normalize(pokemonUpdateRequest.getNombre());
 
-        PokemonMapper.toEntityUpdate(pokemon, pokemonUpdateRequest);
+        Pokemon pokemon = pokemonRepository.findByNombre(nombreNormalizado)
+                .orElseThrow(() -> new PokemonNotFoundException("Pokemon no encontrado"));
 
-        Pokemon actualizado = pokemonRepository.save(pokemon);
-        return PokemonMapper.toDTO(actualizado);
+        List<String> tiposNormalizados = null;
+
+        if (pokemonUpdateRequest.getTipos() != null && !pokemonUpdateRequest.getTipos().isEmpty()) {
+            tiposNormalizados = pokemonUpdateRequest.getTipos()
+                    .stream()
+                    .map(this::normalize) // usa el mismo método normalize()
+                    .toList();
+        }
+
+        PokemonMapper.toEntityUpdate(pokemon, pokemonUpdateRequest, tiposNormalizados);
+
+        return PokemonMapper.toDTO(pokemonRepository.save(pokemon));
     }
 
     // DELETE
     @Override
     public PokemonResponse deletePokemonById(Long id) {
         Pokemon pokemon = pokemonRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pokemon no encontrado"));
+                .orElseThrow(() -> new PokemonNotFoundException("Pokemon no encontrado"));
 
         pokemonRepository.delete(pokemon);
 
@@ -105,7 +100,7 @@ public class PokemonServiceImpl implements PokemonService {
     public PokemonResponse deletePokemonByNombre(String nombre) {
         String nombreNormalizado = normalize(nombre);
         Pokemon pokemon = pokemonRepository.findByNombre(nombreNormalizado)
-                .orElseThrow(() -> new RuntimeException("Pokemon no encontrado"));
+                .orElseThrow(() -> new PokemonNotFoundException("Pokemon no encontrado"));
         pokemonRepository.delete(pokemon);
         return PokemonMapper.toDTO(pokemon);
     }

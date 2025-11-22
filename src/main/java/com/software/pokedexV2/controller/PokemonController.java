@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/pokedexV2/api/pokemon")
+@RequestMapping("/api/v2/pokemon")
 public class PokemonController {
 
     private final PokemonService pokemonService;
@@ -62,34 +62,6 @@ public class PokemonController {
                 "Pokémon encontrado",
                 HttpStatus.OK,
                 pokemon
-        );
-    }
-
-    // READ - por tipo principal
-    @GetMapping("/tipo-principal")
-    public ResponseEntity<GeneralResponse> getAllByTipoPrincipal(
-            @RequestParam String tipo
-    ) {
-        List<PokemonResponse> pokemons = pokemonService.getAllByTipoPrincipal(tipo);
-
-        return ResponseBuilder.buildResponse(
-                "Pokémon filtrados por tipo principal",
-                HttpStatus.OK,
-                pokemons
-        );
-    }
-
-    // READ - por tipo secundario
-    @GetMapping("/tipo-secundario")
-    public ResponseEntity<GeneralResponse> getAllByTipoSecundario(
-            @RequestParam String tipo
-    ) {
-        List<PokemonResponse> pokemons = pokemonService.getAllByTipoSecundario(tipo);
-
-        return ResponseBuilder.buildResponse(
-                "Pokémon filtrados por tipo secundario",
-                HttpStatus.OK,
-                pokemons
         );
     }
 

@@ -10,9 +10,15 @@ import java.util.Optional;
 @Repository
 public interface EquipoRepository extends JpaRepository<Equipo, Long> {
 
-    List<Equipo> findByEntrenador_Id(Long idEntrenador);
+    //Obtener un equipo de un entrenador por su nombre
+    Optional<Equipo> findByEntrenador_IdAndNombreEquipo(Long idEntrenador, String nombreEquipo);
 
+    //Todos los equipos de 1 entrenador
+    List<Equipo> findAllByEntrenador_Id(Long idEntrenador);
+
+    //Comprobar que existe un equipo de un entrenador con X nombre
     boolean existsByNombreEquipoAndEntrenador_Id(String nombreEquipo, Long idEntrenador);
 
-    Optional<Equipo> findByEntrenador_IdAndNombreEquipo(Long idEntrenador, String nombreEquipo);
+    //Comprobar el numero de equipos quetiene un entrenador
+    int countAllByEntrenador_Id(Long idEntrenador);
 }
