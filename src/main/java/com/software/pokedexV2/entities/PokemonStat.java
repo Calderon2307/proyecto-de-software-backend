@@ -14,5 +14,5 @@ public class PokemonStat {
     private String statName;
 
     @Column(name = "valor_stat")
-    private Integer statValue;
+    private Integer baseStat;
 }
