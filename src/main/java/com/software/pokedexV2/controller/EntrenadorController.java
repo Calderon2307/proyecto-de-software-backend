@@ -33,7 +33,7 @@ public class EntrenadorController {
         );
     }
 
-    //READ
+    //READ - LISTAR TODOS
     @GetMapping()
     public ResponseEntity<GeneralResponse> getAllEntrenadores(){
         return ResponseBuilder.buildResponse(
@@ -43,15 +43,10 @@ public class EntrenadorController {
         );
     }
 
-    @GetMapping("/{email}")
-    public ResponseEntity<GeneralResponse> getEntrenadorByEmail(@PathVariable String email){
-        return ResponseBuilder.buildResponse(
-                "Entrenador encontrado",
-                HttpStatus.OK,
-                entrenadorService.getByEmail(email)
-        );
-    }
+    // ⚠️ IMPORTANTE: Los endpoints con @RequestParam deben ir ANTES que los con @PathVariable
+    // Esto evita que Spring confunda "/email/default@pokedex.com" con "/{email}"
 
+    //READ - POR REGIÓN (con @RequestParam)
     @GetMapping("/region")
     public ResponseEntity<GeneralResponse> getAllEntrenadoresByRegion(@RequestParam String region){
         return ResponseBuilder.buildResponse(
@@ -61,21 +56,33 @@ public class EntrenadorController {
         );
     }
 
+    //READ - POR TIPO (con @RequestParam)
     @GetMapping("/tipo")
     public ResponseEntity<GeneralResponse> getAllEntrenadoresByTipo(@RequestParam String tipo){
         return ResponseBuilder.buildResponse(
-                "Enrenadores encontrados",
+                "Entrenadores encontrados",
                 HttpStatus.OK,
                 entrenadorService.getAllByTipoFav(tipo)
         );
     }
 
+    //READ - POR POKÉMON FAVORITO (con @RequestParam)
     @GetMapping("/pokemon")
     public ResponseEntity<GeneralResponse> getAllEntrenadoresByPokemon(@RequestParam String pokemon){
         return ResponseBuilder.buildResponse(
                 "Entrenadores encontrados",
                 HttpStatus.OK,
                 entrenadorService.getAllByPokemonFav(pokemon)
+        );
+    }
+
+    //READ - POR EMAIL (con @PathVariable) - DEBE IR AL FINAL
+    @GetMapping("/email/{email}")
+    public ResponseEntity<GeneralResponse> getEntrenadorByEmail(@PathVariable String email){
+        return ResponseBuilder.buildResponse(
+                "Entrenador encontrado",
+                HttpStatus.OK,
+                entrenadorService.getByEmail(email)
         );
     }
 
@@ -90,7 +97,7 @@ public class EntrenadorController {
         );
     }
 
-    //DELETE
+    //DELETE - POR ID
     @DeleteMapping("/id/{id}")
     public ResponseEntity<GeneralResponse> deleteEntrenadorById(@PathVariable Long id){
         return ResponseBuilder.buildResponse(
@@ -100,6 +107,7 @@ public class EntrenadorController {
         );
     }
 
+    //DELETE - POR EMAIL
     @DeleteMapping("/email/{email}")
     public ResponseEntity<GeneralResponse> deleteEntrenadorByEmail(@PathVariable String email){
         return ResponseBuilder.buildResponse(
