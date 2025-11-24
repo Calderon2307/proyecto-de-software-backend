@@ -35,7 +35,8 @@ public class SecurityConfig {
     @Autowired
     private OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
 
-    // 1. Define el filtro JWT como un Bean para que Spring pueda inyectarle sus dependencias (JwtUtils, EntrenadorDetailsService)
+    // 1. Define el filtro JWT como un Bean para que Spring pueda inyectarle sus
+    // dependencias (JwtUtils, EntrenadorDetailsService)
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
@@ -90,18 +91,33 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 // Reglas de acceso
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/v2/auth/**", "/oauth2/**", "/login/**").permitAll() // Rutas públicas (Registro, Login, OAuth2)
-                                .anyRequest().authenticated() // Cualquier otra ruta requiere un JWT válido
-                )
+                .authorizeHttpRequests(auth -> auth
+                        // 👉 Rutas públicas de Swagger / OpenAPI
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html")
+                        .permitAll()
 
-                // 5. Integra el filtro JWT antes de la autenticación de usuario/contraseña de Spring
+                        // 👉 Tus rutas públicas normales (auth, OAuth2, etc.)
+                        .requestMatchers(
+                                "/api/v2/auth/**",
+                                "/oauth2/**",
+                                "/login/**")
+                        .permitAll()
+
+                        // 👉 Todo lo demás sí requiere autenticación
+                        .anyRequest().authenticated())
+
+                // 5. Integra el filtro JWT antes de la autenticación de usuario/contraseña de
+                // Spring
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
 
                 // 6. Configuración de OAuth2
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .successHandler(oauth2AuthenticationSuccessHandler) // Genera el JWT después del login con Google
+                        .successHandler(oauth2AuthenticationSuccessHandler) // Genera el JWT después del login con
+                                                                            // Google
                 );
 
         return http.build();
