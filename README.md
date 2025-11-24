@@ -171,25 +171,36 @@ Windows:
 ### Pokémon–Equipo
 
 -   `/pokedexV2/api/pokemon-equipo`
-    
+
+---
+## 6. 📘 Documentación automática con Swagger / OpenAPI
+
+Este proyecto integra **springdoc-openapi**, lo que genera automáticamente la documentación de la API.
+
+### ✔️ Acceso local
+
+**Swagger UI:**  
+👉 http://localhost:8080/swagger-ui/index.html
+
+**OpenAPI JSON:**  
+👉 http://localhost:8080/v3/api-docs
+
+**OpenAPI YAML:**  
+👉 http://localhost:8080/v3/api-docs.yaml
+
+
+---
+
+## 7. 🛡️ Seguridad (JWT + OAuth2 + CORS)
+
+El proyecto implementa:
+
+- **JWT** para login y validación de peticiones.  
+- **OAuth2** para autenticación con Google.  
+- **Filtro JWT personalizado.**  
+- **CORS** configurado para entornos de desarrollo y producción.  
+- **Seguridad expuesta en la clase `SecurityConfig`.**
+
+Además, **Swagger está habilitado explícitamente dentro de la configuración de seguridad**.
 
 > Detalles completos en la carpeta `controller`
-
-## 7. 🗂️ Estructura del proyecto
-
-src/
-└── main/
-    ├── java/com/software/pokedexV2
-    │   ├── config/        # Seguridad, CORS, JWT, OAuth
-    │   ├── controller/    # Endpoints REST
-    │   ├── dto/           # DTOs de request/response
-    │   ├── entities/      # Entidades JPA
-    │   ├── exception/     # Manejo global de errores
-    │   ├── mapper/        # Conversión Entity ↔ DTO
-    │   ├── repository/    # Repositorios JPA
-    │   └── service/       # Lógica de negocio
-    └── resources/
-        └── application.yaml
-
-
-
