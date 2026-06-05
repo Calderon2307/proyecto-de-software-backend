@@ -1,3 +1,36 @@
 spring:
   application:
     name: pokedex-backend
+
+  datasource:
+    url: jdbc:postgresql://dpg-d4hootodl3ps739ts02g-a.oregon-postgres.render.com:5432/pokedex_db_h4ij
+    username: pokedex_db_h4ij_user
+    password: hEhlG4mAB24h2HWymqvLAZLbplJUb8WN
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 840287228774-carn8b6j5q4rns9b40kmm5aim2set69b.apps.googleusercontent.com
+            client-secret: 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
+            scope: openid, profile, email
+
+server:
+  port: 8080
+
+jwt:
+  secret:
+    key: oOdRovM1B1OcwTHTV9USyqbCcHwtK0buSEaFkigp1jeXCVlG2HFkVhJDQY0C4fXLysApJ+UZcRhELvJsWR2rrQ==
+  time:
+    expiration: 86400000
